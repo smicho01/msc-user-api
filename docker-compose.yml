@@ -1,0 +1,20 @@
+version: '3.3'
+
+services:
+  students-db:
+    container_name: students-db
+    image: mysql/mysql-server:8.0.23
+    restart: always
+    environment:
+      MYSQL_DATABASE: students
+      MYSQL_USER: student
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: admin123
+    ports:
+      - '3306:3306'
+    volumes:
+      - students-db:/var/lib/mysql
+
+
+volumes:
+  students-db:
