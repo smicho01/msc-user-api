@@ -1,20 +1,61 @@
 version: '3.3'
 
+x-db-schema-creation: &db-schema-creation
+  image: postgres:13.1
+  volumes:
+    - ./sql:/sql
+  environment:
+      DATABASE_NAME: students
+      DATABASE_USERNAME: student
+      DATABASE_PASSWORD: password
+      DATABASE_ENDPOINT: postgres
+      DATABASE_PORT: 5432
+  entrypoint: ["/sql/create-schema.sh"]
+  depends_on:
+    postgres:
+      condition: service_healthy
+  networks:
+    - msc
+
+
 services:
-  students-db:
-    container_name: students-db
-    image: mysql/mysql-server:8.0.23
-    restart: always
-    environment:
-      MYSQL_DATABASE: students
-      MYSQL_USER: student
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: admin123
+  postgres:
+    image: postgres:13.1
     ports:
-      - '3306:3306'
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=student
+      - POSTGRES_DB=students
+    networks:
+      - msc
+    healthcheck:
+      test: [ "CMD", "psql", "-U", "student", "-d", "students" ]
+      interval: 500ms
+      timeout: 1s
+      retries: 5
+
+
+
+  students-schema-creation:
+    <<: *db-schema-creation
+    command: [ "studentsschema" ]
+
+  timecard-database-migrations:
+    image: "liquibase/liquibase:4.15.0"
     volumes:
-      - students-db:/var/lib/mysql
+      - ./db/changelog:/liquibase/changelog
+      - ./db/sql:/liquibase/sql
+    command:
+      - "--url=jdbc:postgresql://postgres:5432/students"
+      - "--username=student"
+      - "--password=password"
+      - "--changeLogFile=changelog/db.changelog-main.yml"
+      - "--liquibaseSchemaName=studentsschema"
+      - "update"
+    networks:
+      - msc
 
-
-volumes:
-  students-db:
+networks:
+  msc:
+    driver: bridge
