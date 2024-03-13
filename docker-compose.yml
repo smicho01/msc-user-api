@@ -1,22 +1,5 @@
 version: '3.3'
 
-x-db-schema-creation: &db-schema-creation
-  image: postgres:13.1
-  volumes:
-    - ./sql:/sql
-  environment:
-      DATABASE_NAME: students
-      DATABASE_USERNAME: student
-      DATABASE_PASSWORD: password
-      DATABASE_ENDPOINT: postgres
-      DATABASE_PORT: 5432
-  entrypoint: ["/sql/create-schema.sh"]
-  depends_on:
-    postgres:
-      condition: service_healthy
-  networks:
-    - msc
-
 
 services:
   postgres:
@@ -34,11 +17,26 @@ services:
       interval: 500ms
       timeout: 1s
       retries: 5
-
+    volumes:
+      - dbdata:/var/lib/postgresql/data
 
 
   students-schema-creation:
-    <<: *db-schema-creation
+    image: postgres:13.1
+    volumes:
+      - ./sql:/sql
+    environment:
+      DATABASE_NAME: students
+      DATABASE_USERNAME: student
+      DATABASE_PASSWORD: password
+      DATABASE_ENDPOINT: postgres
+      DATABASE_PORT: 5432
+    entrypoint: [ "/sql/create-schema.sh" ]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - msc
     command: [ "studentsschema" ]
 
   timecard-database-migrations:
@@ -46,6 +44,9 @@ services:
     volumes:
       - ./db/changelog:/liquibase/changelog
       - ./db/sql:/liquibase/sql
+    depends_on:
+      postgres:
+        condition: service_healthy
     command:
       - "--url=jdbc:postgresql://postgres:5432/students"
       - "--username=student"
@@ -59,3 +60,7 @@ services:
 networks:
   msc:
     driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
