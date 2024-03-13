@@ -11,7 +11,13 @@ public class StudentRowMapper implements RowMapper<Student> {
 
     @Override
     public Student map(ResultSet rs, StatementContext ctx) throws SQLException {
-        // TODO student constructor with correct fields
-        return new Student();
+        return new Student(
+                rs.getString("id"),
+                rs.getString("student_id"),
+                rs.getString("firstname"),
+                rs.getString("lastname"),
+                rs.getString("email"),
+                rs.getString("sex")
+        );
     }
 }
