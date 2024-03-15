@@ -9,8 +9,9 @@ import java.util.List;
 
 public interface StudentDAO {
 
-//    @RegisterRowMapper(StudentRowMapper.class)
-//    Student findById(@Bind("id") Long id);
+    @RegisterRowMapper(StudentRowMapper.class)
+    @SqlQuery(QueryStudent.QUERY_FIND_BY_ID)
+    Student findById(@Bind("id") String id);
 
     @RegisterRowMapper(StudentRowMapper.class)
     @SqlQuery(QueryStudent.QUERY_FIND_ALL)
