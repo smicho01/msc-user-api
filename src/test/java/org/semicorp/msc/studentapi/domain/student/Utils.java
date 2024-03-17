@@ -18,7 +18,7 @@ public class Utils {
 
     public static List<Student> createStudentsList() {
         List<Student> students = new ArrayList<>();
-        students.add(new Student());
+        students.add(Student.builder().firstName("Adam").lastName("Smith").build());
         students.add(new Student());
         students.add(new Student());
         students.add(new Student());
