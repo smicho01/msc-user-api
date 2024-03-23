@@ -12,6 +12,8 @@ public class UserRow implements DomainType<User>, Comparable<User> {
     private String email;
     private String sex;
 
+    private Boolean active;
+
     public UserRow(@NonNull final User user) {
         this.id = user.getId();
         this.username = user.getUsername();
@@ -19,6 +21,7 @@ public class UserRow implements DomainType<User>, Comparable<User> {
         this.lastName = user.getLastName();
         this.email = user.getEmail();
         this.sex = user.getSex();
+        this.active = user.getActive();
     }
 
     @Override
