@@ -1,4 +1,4 @@
-package org.semicorp.msc.studentapi.domain.student;
+package org.semicorp.msc.userapi.domain.user;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,27 +14,24 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-
-import java.util.ArrayList;
 import java.util.List;
 
-@WebMvcTest(StudentController.class)
-public class StudentControllerTest {
+@WebMvcTest(UserController.class)
+public class UsersControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private StudentService studentService;
+    private UserService userService;
 
     @Test
-    public void getAllStudents_returnsOkWithListOfStudents() throws Exception {
-        List<Student> students =  Utils.createStudentsList();
+    public void getAllUsers_returnsOkWithListOfUsers() throws Exception {
+        List<User> users =  Utils.createUsersList();
 
-        given(studentService.getAllStudents()).willReturn(students);
+        given(userService.getAllUsers()).willReturn(users);
 
-        mockMvc.perform(get("/api/v1/student")
+        mockMvc.perform(get("/api/v1/user")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -44,29 +41,29 @@ public class StudentControllerTest {
     }
 
     @Test
-    public void shouldReturnStudent_whenGivenValidId() throws Exception {
-        Student expectedStudent = Student.builder().build();
-        given(studentService.getStudent("1")).willReturn(expectedStudent);
+    public void shouldReturnUser_whenGivenValidId() throws Exception {
+        User expected = User.builder().build();
+        given(userService.getUser("1")).willReturn(expected);
 
-        mockMvc.perform(get("/api/v1/student/1")
+        mockMvc.perform(get("/api/v1/user/1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        Mockito.verify(studentService, Mockito.times(1)).getStudent("1");
+        Mockito.verify(userService, Mockito.times(1)).getUser("1");
     }
 
     @Test
     public void shouldThrowError_whenGivenInvalidId() throws Exception{
-        given(studentService.getStudent("200")).willReturn(null);
+        given(userService.getUser("200")).willReturn(null);
 
-        mockMvc.perform(get("/api/v1/student/200")
+        mockMvc.perform(get("/api/v1/user/200")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Mockito.verify(studentService, Mockito.times(1)).getStudent("200");
+        Mockito.verify(userService, Mockito.times(1)).getUser("200");
     }
 
 }

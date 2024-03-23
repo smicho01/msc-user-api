@@ -2,13 +2,13 @@
   "databaseChangeLog": [
     {
       "changeSet": {
-        "id": "001-create-students-table",
+        "id": "001-create-users-table",
         "author": "S Michota",
         "changes": [
           {
             "sqlFile": {
               "dbms": "postgresql",
-              "path": "sql/001-create-students-table.sql"
+              "path": "sql/001-create-users-table.sql"
             }
           }
         ]

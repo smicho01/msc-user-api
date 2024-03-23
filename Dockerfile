@@ -1,6 +1,6 @@
 FROM openjdk:17-alpine
 WORKDIR /usr/src/main
 ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} students-api.jar
-ENTRYPOINT ["java","-jar","students-api"]
+COPY ${JAR_FILE} msc-user-api.jar
+ENTRYPOINT ["java","-jar","msc-user-api"]
 EXPOSE 9091

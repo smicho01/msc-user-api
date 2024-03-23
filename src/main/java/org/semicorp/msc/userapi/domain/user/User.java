@@ -1,10 +1,9 @@
-package org.semicorp.msc.studentapi.domain.student;
+package org.semicorp.msc.userapi.domain.user;
 
 
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 @Data
 @Builder
@@ -14,10 +13,10 @@ import java.util.UUID;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class Student implements Serializable {
+public class User implements Serializable {
 
     private String id;
-    private String studentId;
+    private String username;
     private String firstName;
     private String lastName;
     private String email;

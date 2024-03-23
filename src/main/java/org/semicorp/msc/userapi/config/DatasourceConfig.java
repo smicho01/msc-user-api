@@ -1,4 +1,4 @@
-package org.semicorp.msc.studentapi.config;
+package org.semicorp.msc.userapi.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.jdbi.v3.spring4.JdbiFactoryBean;
@@ -38,7 +38,7 @@ public class DatasourceConfig {
 
     @Bean
     @Primary
-    @Qualifier("student.db")
+    @Qualifier("user.db")
     public JdbiFactoryBean coreDbi(@Qualifier("core.datasource") final DataSource dataSource) {
         final JdbiFactoryBean factoryBean = new JdbiFactoryBean(dataSource);
         factoryBean.setAutoInstallPlugins(true);
