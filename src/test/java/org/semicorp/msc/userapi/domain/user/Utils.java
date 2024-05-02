@@ -12,7 +12,6 @@ public class Utils {
                 .firstName("John")
                 .lastName("Doe")
                 .email("jd@gmail.com")
-                .sex("M")
                 .build();
     }
 
