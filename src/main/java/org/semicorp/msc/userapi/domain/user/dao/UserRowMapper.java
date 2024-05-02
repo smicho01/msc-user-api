@@ -14,10 +14,10 @@ public class UserRowMapper implements RowMapper<User> {
         return new User(
                 rs.getString("id"),
                 rs.getString("username"),
+                rs.getString("visibleusername"),
                 rs.getString("firstname"),
                 rs.getString("lastname"),
                 rs.getString("email"),
-                rs.getString("sex"),
                 rs.getBoolean("active")
         );
     }

@@ -17,10 +17,10 @@ public class User implements Serializable {
 
     private String id;
     private String username;
+    private String visibleUsername;
     private String firstName;
     private String lastName;
     private String email;
-    private String sex;
     private Boolean active;
 
 }
