@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.semicorp.msc.userapi.utils.Logger.logInfo;
@@ -26,41 +27,36 @@ public class UserController {
         @RequestParam(value="username", required = false) String username,
         @RequestParam(value="email", required = false) String email) {
 
+        List<User> users = new ArrayList<>();
+
         if(username != null) {
             logInfo("Get user by username: " + username , token);
-            List<User> users = userService.getUserByField("username", username);
+            users = userService.getUserByField("username", username);
             return new ResponseEntity<>(users, HttpStatus.OK);
-        }
-
-        if(email != null) {
+        } else if(email != null) {
             logInfo("Get user by email: " + email , token);
-            List<User> users = userService.getUserByField("email", email);
+            users = userService.getUserByField("email", email);
             return new ResponseEntity<>(users, HttpStatus.OK);
+        } else {
+            logInfo("Get all users", token);
+            users = userService.getAllUsers();
         }
 
-        logInfo("Get all users", token);
-        List<User> allUsers = userService.getAllUsers();
-        return new ResponseEntity<>(allUsers, HttpStatus.OK);
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(
+    public ResponseEntity getUser(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
             @PathVariable(value="id") String id) {
         logInfo("Get user by id: " + id, token);
         User user = userService.getUser(id);
+        if(user == null) {
+            return new ResponseEntity<>(new CustomResponse("Not Found"), HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-//    @GetMapping("/")
-//    public ResponseEntity<User> getUserByFields(
-//            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-//            @RequestParam(value="username", required = false) String username,
-//            @RequestParam(value="email", required = false) String email) {
-//        logInfo("Get user by username: " + username + " and email: " + email, token);
-//        List<User> user = userService.getUserByFields(username, email);
-//        return new ResponseEntity<>(user, HttpStatus.OK);
-//    }
 }
 

@@ -10,5 +10,4 @@ public class Logger {
         log.info(message + " | Keycloak User ID: {} , username: {}", JwtCredentials.getKeycloakUserId(),
                 JwtCredentials.getKeycloakUsername());
     }
-
 }

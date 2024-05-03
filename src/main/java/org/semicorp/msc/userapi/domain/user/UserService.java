@@ -26,16 +26,16 @@ public class UserService {
     }
 
     public User getUser(String id) {
-        User student = jdbi.onDemand(UserDAO.class).findById(id);
+        User user = jdbi.onDemand(UserDAO.class).findById(id);
         try {
-            if (student == null) {
+            if (user == null) {
                 String errorMessage = USER_NOT_FOUND + " ID: " + id;
                 throw new UserNotFoundException(errorMessage);
             }
         } catch(RuntimeException e) {
             log.warn(e.getMessage());
         }
-        return student;
+        return user;
     }
 
     public List<User> getUserByField(String fieldName, String fieldvalue) {
@@ -45,14 +45,10 @@ public class UserService {
             default -> new ArrayList<>();
         };
 
-        try {
-            if (students == null) {
-                String errorMessage = USER_NOT_FOUND + fieldName + ": " + fieldvalue;
-                throw new UserNotFoundException(errorMessage);
-            }
-        } catch(RuntimeException e) {
-            log.warn(e.getMessage());
+        if(students.isEmpty()) {
+            log.info("User not found. {}: {}", fieldName, fieldvalue);
         }
+
         return students;
     }
 }
