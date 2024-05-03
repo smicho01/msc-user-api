@@ -15,16 +15,31 @@ import static org.semicorp.msc.userapi.utils.Logger.logInfo;
 @Slf4j
 public class UserController {
 
-    private final UserService studentService;
+    private final UserService userService;
 
     public UserController(UserService studentService) {
-        this.studentService = studentService;
+        this.userService = studentService;
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+    public ResponseEntity<List<User>> getAllUsers(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+        @RequestParam(value="username", required = false) String username,
+        @RequestParam(value="email", required = false) String email) {
+
+        if(username != null) {
+            logInfo("Get user by username: " + username , token);
+            List<User> users = userService.getUserByField("username", username);
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        }
+
+        if(email != null) {
+            logInfo("Get user by email: " + email , token);
+            List<User> users = userService.getUserByField("email", email);
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        }
+
         logInfo("Get all users", token);
-        List<User> allUsers = studentService.getAllUsers();
+        List<User> allUsers = userService.getAllUsers();
         return new ResponseEntity<>(allUsers, HttpStatus.OK);
     }
 
@@ -34,8 +49,18 @@ public class UserController {
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
             @PathVariable(value="id") String id) {
         logInfo("Get user by id: " + id, token);
-        User user = studentService.getUser(id);
+        User user = userService.getUser(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+
+//    @GetMapping("/")
+//    public ResponseEntity<User> getUserByFields(
+//            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+//            @RequestParam(value="username", required = false) String username,
+//            @RequestParam(value="email", required = false) String email) {
+//        logInfo("Get user by username: " + username + " and email: " + email, token);
+//        List<User> user = userService.getUserByFields(username, email);
+//        return new ResponseEntity<>(user, HttpStatus.OK);
+//    }
 }
 
