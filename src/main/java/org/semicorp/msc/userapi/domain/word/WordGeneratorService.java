@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -18,7 +19,7 @@ public class WordGeneratorService {
         this.resourceLoader = resourceLoader;
     }
 
-    public String generateRandomPhrase() throws IOException {
+    public String generateRandomUserName() throws IOException {
         Resource adjectiveResource = resourceLoader.getResource("classpath:adjectives.txt");
         Resource nounResource = resourceLoader.getResource("classpath:animals.txt");
 
@@ -30,6 +31,14 @@ public class WordGeneratorService {
         String randomNoun = nouns.get(random.nextInt(nouns.size()));
 
         return randomAdjective + randomNoun;
+    }
+
+    public List<String> generateRandomUserNameBulk(int count) throws IOException {
+        List<String> namesList = new ArrayList<>();
+        for (int i=0; i<=count; i++){
+            namesList.add(this.generateRandomUserName());
+        }
+        return namesList;
     }
 
     public String capitalizeFirstLetter(String str) {
