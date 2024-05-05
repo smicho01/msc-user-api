@@ -1,11 +1,15 @@
 package org.semicorp.msc.userapi.domain.user;
 
 import lombok.extern.slf4j.Slf4j;
+import org.semicorp.msc.userapi.domain.user.dto.AddUserDTO;
+import org.semicorp.msc.userapi.utils.CustomResponse;
+import org.semicorp.msc.userapi.utils.ResponseCodes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,9 +57,22 @@ public class UserController {
         logInfo("Get user by id: " + id, token);
         User user = userService.getUser(id);
         if(user == null) {
-            return new ResponseEntity<>(new CustomResponse("Not Found"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new CustomResponse("Not Found", ResponseCodes.NOT_FOUND), HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity addUser(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+            @RequestBody AddUserDTO addUserDTO) throws IOException {
+        logInfo(String.format("Register new user: [username: %s]", addUserDTO.getUsername()), token);
+        User newUser = userService.createUserFromAddUserDto(addUserDTO);
+        CustomResponse insertResponse = userService.insert(newUser);
+        if(insertResponse.getCode() != 200) {
+            return new ResponseEntity<>(insertResponse, HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(newUser, HttpStatus.OK);
     }
 
 }

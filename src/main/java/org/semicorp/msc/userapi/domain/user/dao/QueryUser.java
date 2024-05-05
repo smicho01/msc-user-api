@@ -6,4 +6,7 @@ public class QueryUser {
     static final String QUERY_FIND_BY_ID = "SELECT * FROM users.user WHERE id = :id;";
     static final String QUERY_FIND_BY_USERNAME = "SELECT * FROM users.user WHERE username =:username;";
     static final String QUERY_FIND_BY_EMAIL = "SELECT * FROM users.user WHERE email =:email;";
+
+    static final String QUERY_INSERT_USER = "INSERT INTO users.user (id, username, visibleusername, firstname, lastname, email,  active) " +
+            "VALUES(:id, :username, :visibleUsername, :firstName, :lastName, :email, :active );";
 }

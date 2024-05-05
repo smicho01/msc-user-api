@@ -1,8 +1,12 @@
 package org.semicorp.msc.userapi.domain.user.dao;
 
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.semicorp.msc.userapi.domain.user.User;
 
+@Getter
+@Setter
 public class UserRow  {
 
     private String id;

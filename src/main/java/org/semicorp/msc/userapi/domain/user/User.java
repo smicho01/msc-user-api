@@ -14,7 +14,6 @@ import java.io.Serializable;
 @ToString
 @EqualsAndHashCode
 public class User implements Serializable {
-
     private String id;
     private String username;
     private String visibleUsername;
