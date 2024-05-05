@@ -14,6 +14,14 @@ public interface UserDAO {
     User findById(@Bind("id") String id);
 
     @RegisterRowMapper(UserRowMapper.class)
+    @SqlQuery(QueryUser.QUERY_FIND_BY_USERNAME)
+    List<User> findByUsername(@Bind("username") String username);
+
+    @RegisterRowMapper(UserRowMapper.class)
+    @SqlQuery(QueryUser.QUERY_FIND_BY_EMAIL)
+    List<User> findByEmail(@Bind("email") String email);
+
+    @RegisterRowMapper(UserRowMapper.class)
     @SqlQuery(QueryUser.QUERY_FIND_ALL)
     List<User> findAll();
 }
