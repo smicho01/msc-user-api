@@ -1,4 +1,4 @@
-package org.semicorp.msc.userapi.domain.user;
+package org.semicorp.msc.userapi.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,4 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class CustomResponse {
     private String response;
+    private int code;
 }
