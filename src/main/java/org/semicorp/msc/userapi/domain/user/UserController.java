@@ -27,26 +27,30 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-        @RequestParam(value="username", required = false) String username,
-        @RequestParam(value="email", required = false) String email) {
+    public ResponseEntity getAllUsers(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+        @RequestParam(value="field", required = false) String field,
+        @RequestParam(value="value", required = false) String value) {
 
-        List<User> users = new ArrayList<>();
+        User users = null;
 
-        if(username != null) {
-            logInfo("Get user by username: " + username , token);
-            users = userService.getUserByField("username", username);
-            return new ResponseEntity<>(users, HttpStatus.OK);
-        } else if(email != null) {
-            logInfo("Get user by email: " + email , token);
-            users = userService.getUserByField("email", email);
-            return new ResponseEntity<>(users, HttpStatus.OK);
-        } else {
-            logInfo("Get all users", token);
-            users = userService.getAllUsers();
+        switch (field) {
+            case "username":
+                logInfo("Get user by username: " + value , token);
+                users = userService.getUserByField("username", value);
+                return new ResponseEntity<>(users, HttpStatus.OK);
+            case "email":
+                logInfo("Get user by email: " + value , token);
+                users = userService.getUserByField("email", value);
+                return new ResponseEntity<>(users, HttpStatus.OK);
+            case "id":
+                logInfo("Get user by id: " + value , token);
+                users = userService.getUserByField("id", value);
+                return new ResponseEntity<>(users, HttpStatus.OK);
+            default:
+                logInfo("Get all users", token);
+                return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+
         }
-
-        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
 
@@ -72,6 +76,7 @@ public class UserController {
         if(insertResponse.getCode() != 200) {
             return new ResponseEntity<>(insertResponse, HttpStatus.BAD_REQUEST);
         }
+        logInfo(String.format("User created: [username: %s]", addUserDTO.getUsername()), token);
         return new ResponseEntity<>(newUser, HttpStatus.OK);
     }
 

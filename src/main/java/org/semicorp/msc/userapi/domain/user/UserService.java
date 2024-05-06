@@ -48,29 +48,31 @@ public class UserService {
         return user;
     }
 
-    public List<User> getUserByField(String fieldName, String fieldvalue) {
-        List<User> users = switch (fieldName) {
+    public User getUserByField(String fieldName, String fieldvalue) {
+        User user = switch (fieldName) {
             case "username" -> jdbi.onDemand(UserDAO.class).findByUsername(fieldvalue);
             case "email" -> jdbi.onDemand(UserDAO.class).findByEmail(fieldvalue);
-            default -> new ArrayList<>();
+            case "id" -> jdbi.onDemand(UserDAO.class).findById(fieldvalue);
+            default -> null;
         };
 
-        if(users.isEmpty()) {
+        if(user == null) {
             log.info("User not found. {}: {}", fieldName, fieldvalue);
+            return null;
         }
-        return users;
+        return user;
     }
 
     public CustomResponse insert(User newUser) {
         // Check if username exists
-        List<User> usernames = getUserByField("username", newUser.getUsername());
-        if(usernames.size() > 0) {
+        User usernames = getUserByField("username", newUser.getUsername());
+        if(usernames != null) {
             log.warn("Username exists. username: {}", newUser.getUsername());
             return  new CustomResponse("Username exists", ResponseCodes.ALREADY_EXISTS);
         }
         // Check if email exists
-        List<User> emails = getUserByField("email", newUser.getEmail());
-        if(emails.size() > 0) {
+        User emails = getUserByField("email", newUser.getEmail());
+        if(emails != null) {
             log.warn("Email exists. email: {}", newUser.getUsername());
             return  new CustomResponse("Email exists", ResponseCodes.ALREADY_EXISTS);
         }
