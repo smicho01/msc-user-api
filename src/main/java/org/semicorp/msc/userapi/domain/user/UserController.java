@@ -33,6 +33,11 @@ public class UserController {
 
         User users = null;
 
+        if(field == null) {
+            logInfo("Get all users", token);
+            return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+        }
+
         switch (field) {
             case "username":
                 logInfo("Get user by username: " + value , token);
