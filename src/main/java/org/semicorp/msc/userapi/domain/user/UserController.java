@@ -54,7 +54,6 @@ public class UserController {
             default:
                 logInfo("Get all users", token);
                 return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
-
         }
     }
 
