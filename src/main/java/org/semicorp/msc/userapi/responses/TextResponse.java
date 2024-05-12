@@ -1,11 +1,12 @@
-package org.semicorp.msc.userapi.utils;
+package org.semicorp.msc.userapi.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-@Data
+
 @AllArgsConstructor
-public class CustomResponse {
+@Data
+public class TextResponse implements BasicResponse {
     private String response;
     private int code;
 }

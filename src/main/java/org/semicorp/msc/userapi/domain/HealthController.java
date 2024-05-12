@@ -1,6 +1,9 @@
 package org.semicorp.msc.userapi.domain;
 
 import lombok.extern.slf4j.Slf4j;
+import org.semicorp.msc.userapi.responses.BasicResponse;
+import org.semicorp.msc.userapi.responses.ResponseCodes;
+import org.semicorp.msc.userapi.responses.TextResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthController {
 
 
-    @GetMapping
-    public ResponseEntity healtcheck() {
-        return new ResponseEntity(HttpStatus.OK);
+    @GetMapping("/healthcheck")
+    public ResponseEntity<BasicResponse> healtcheck() {
+        return new ResponseEntity<>(new TextResponse("OK", ResponseCodes.SUCCESS), HttpStatus.OK);
     }
 }

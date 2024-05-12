@@ -27,6 +27,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/service/status")
                 .hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET,"/api/v1/healthcheck").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer()

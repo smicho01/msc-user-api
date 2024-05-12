@@ -1,4 +1,4 @@
-package org.semicorp.msc.userapi.utils;
+package org.semicorp.msc.userapi.responses;
 
 public class ResponseCodes {
     public static final int SUCCESS = 200;

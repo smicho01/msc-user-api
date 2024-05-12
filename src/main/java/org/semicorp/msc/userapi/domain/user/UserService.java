@@ -7,12 +7,11 @@ import org.semicorp.msc.userapi.domain.user.dao.UserRow;
 import org.semicorp.msc.userapi.domain.user.dto.AddUserDTO;
 import org.semicorp.msc.userapi.domain.user.exceptions.UserNotFoundException;
 import org.semicorp.msc.userapi.domain.word.WordGeneratorService;
-import org.semicorp.msc.userapi.utils.CustomResponse;
-import org.semicorp.msc.userapi.utils.ResponseCodes;
+import org.semicorp.msc.userapi.responses.TextResponse;
+import org.semicorp.msc.userapi.responses.ResponseCodes;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,7 +22,6 @@ import static org.semicorp.msc.userapi.domain.user.UserConstants.USER_NOT_FOUND;
 public class UserService {
 
     private final WordGeneratorService wordGeneratorService;
-
     private final Jdbi jdbi;
 
     public UserService(WordGeneratorService wordGeneratorService, Jdbi jdbi) {
@@ -63,26 +61,26 @@ public class UserService {
         return user;
     }
 
-    public CustomResponse insert(User newUser) {
+    public TextResponse insert(User newUser) {
         // Check if username exists
         User usernames = getUserByField("username", newUser.getUsername());
         if(usernames != null) {
             log.warn("Username exists. username: {}", newUser.getUsername());
-            return  new CustomResponse("Username exists", ResponseCodes.ALREADY_EXISTS);
+            return  new TextResponse("Username exists", ResponseCodes.ALREADY_EXISTS);
         }
         // Check if email exists
         User emails = getUserByField("email", newUser.getEmail());
         if(emails != null) {
             log.warn("Email exists. email: {}", newUser.getUsername());
-            return  new CustomResponse("Email exists", ResponseCodes.ALREADY_EXISTS);
+            return  new TextResponse("Email exists", ResponseCodes.ALREADY_EXISTS);
         }
         boolean insert = jdbi.onDemand(UserDAO.class).insert(new UserRow(newUser));
         if(!insert) {
             log.warn("Can't insert user with id {}, and username: {}", newUser.getId(), newUser.getUsername());
-            return new CustomResponse("Insert error", ResponseCodes.FAIL);
+            return new TextResponse("Insert error", ResponseCodes.FAIL);
         }
         log.info("User created. id {}, username: {}", newUser.getId(), newUser.getUsername());
-        return new CustomResponse("User created", ResponseCodes.SUCCESS);
+        return new TextResponse("User created", ResponseCodes.SUCCESS);
     }
 
     public User createUserFromAddUserDto(AddUserDTO addUserDTO) throws IOException {
