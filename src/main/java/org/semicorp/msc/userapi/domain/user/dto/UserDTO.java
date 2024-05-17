@@ -1,11 +1,9 @@
-package org.semicorp.msc.userapi.domain.user;
-
+package org.semicorp.msc.userapi.domain.user.dto;
 
 import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @Builder
@@ -15,7 +13,7 @@ import java.util.Date;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class User implements Serializable {
+public class UserDTO  {
     private String id;
     private String username;
     private String visibleUsername;
@@ -25,8 +23,6 @@ public class User implements Serializable {
     private Boolean active;
     private LocalDateTime datecreated = LocalDateTime.now();
     private LocalDateTime dateupdated = LocalDateTime.now();
-    private String pubKey;
-    private String privKey;
     private int tokens;
 
 }

@@ -3,11 +3,13 @@ package org.semicorp.msc.userapi.domain.user.dao;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 import org.semicorp.msc.userapi.domain.user.User;
+import org.semicorp.msc.userapi.domain.user.dto.UserDTO;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class UserRowMapper implements RowMapper<User> {
 

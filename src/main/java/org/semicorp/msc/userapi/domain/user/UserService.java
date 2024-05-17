@@ -12,6 +12,7 @@ import org.semicorp.msc.userapi.responses.ResponseCodes;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -94,6 +95,8 @@ public class UserService {
                 .firstName(addUserDTO.getFirstName())
                 .lastName(addUserDTO.getLastName())
                 .email(addUserDTO.getEmail())
+                .datecreated(LocalDateTime.now())
+                .dateupdated(LocalDateTime.now())
                 .active(true)
                 .build();
         return user;
