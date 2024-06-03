@@ -61,8 +61,11 @@ public class UserController {
             case "username":
                 logInfo("Get user by username: " + value , token);
                 user = userService.getUserByField("username", value);
-                userDTO = UserMapper.userToUserDTO(user);
-                return new ResponseEntity<>(userDTO, HttpStatus.OK);
+                if(user!=null) {
+                    userDTO = UserMapper.userToUserDTO(user);
+                    return new ResponseEntity<>(userDTO, HttpStatus.OK);
+                }
+                return new ResponseEntity<>(null, HttpStatus.OK);
             case "email":
                 logInfo("Get user by email: " + value , token);
                 user = userService.getUserByField("email", value);
@@ -113,6 +116,9 @@ public class UserController {
         User newUser = userService.createUserFromAddUserDto(addUserDTO);
         newUser.setPrivKey(CryptoUtils.decrypt(walletDetails.getPrivateKeyEncrypted(), encryptionKey));
         newUser.setPubKey(CryptoUtils.decrypt(walletDetails.getPublicKeyEncrypted(), encryptionKey));
+
+        // TODO: Need also assign College to a user based on the email
+        // System.out.println("EMAIL: " + addUserDTO.getEmail());
 
         TextResponse insertResponse = userService.insert(newUser);
         // Response when insert request didn't go well

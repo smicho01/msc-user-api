@@ -22,6 +22,7 @@ public class User implements Serializable {
     private String firstName;
     private String lastName;
     private String email;
+    private String college;
     private Boolean active;
     private LocalDateTime datecreated = LocalDateTime.now();
     private LocalDateTime dateupdated = LocalDateTime.now();

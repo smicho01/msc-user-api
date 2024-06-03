@@ -75,7 +75,10 @@ public class UserService {
             log.warn("Email exists. email: {}", newUser.getUsername());
             return  new TextResponse("Email exists", ResponseCodes.ALREADY_EXISTS);
         }
+
+        // Insert user
         boolean insert = jdbi.onDemand(UserDAO.class).insert(new UserRow(newUser));
+
         if(!insert) {
             log.warn("Can't insert user with id {}, and username: {}", newUser.getId(), newUser.getUsername());
             return new TextResponse("Insert error", ResponseCodes.FAIL);
@@ -95,6 +98,7 @@ public class UserService {
                 .firstName(addUserDTO.getFirstName())
                 .lastName(addUserDTO.getLastName())
                 .email(addUserDTO.getEmail())
+                .college(addUserDTO.getCollege())
                 .datecreated(LocalDateTime.now())
                 .dateupdated(LocalDateTime.now())
                 .active(true)

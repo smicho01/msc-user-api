@@ -19,6 +19,7 @@ public class UserRow  {
     private String firstName;
     private String lastName;
     private String email;
+    private String college;
     private Boolean active;
     private LocalDateTime datecreated;
     private LocalDateTime dateupdated;
@@ -33,6 +34,7 @@ public class UserRow  {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.email = user.getEmail();
+        this.college = user.getCollege();
         this.active = user.getActive();
         this.datecreated = user.getDatecreated();
         this.dateupdated = user.getDateupdated();
