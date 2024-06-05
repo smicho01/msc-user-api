@@ -5,9 +5,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.semicorp.msc.userapi.domain.user.User;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -20,6 +18,7 @@ public class UserRow  {
     private String lastName;
     private String email;
     private String college;
+    private String collegeId;
     private Boolean active;
     private LocalDateTime datecreated;
     private LocalDateTime dateupdated;
@@ -35,6 +34,7 @@ public class UserRow  {
         this.lastName = user.getLastName();
         this.email = user.getEmail();
         this.college = user.getCollege();
+        this.collegeId = user.getCollegeId();
         this.active = user.getActive();
         this.datecreated = user.getDatecreated();
         this.dateupdated = user.getDateupdated();

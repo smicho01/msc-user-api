@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS users.user (
     lastname VARCHAR(40) NOT NULL,
     email VARCHAR(100) NOT NULL,
     college VARCHAR(150),
+    collegeId VARCHAR(36),
     active boolean NOT NULL,
     pubKey TEXT,
     privKey TEXT,

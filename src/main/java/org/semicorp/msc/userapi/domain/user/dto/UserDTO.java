@@ -21,6 +21,7 @@ public class UserDTO  {
     private String lastName;
     private String email;
     private String college;
+    private String collegeId;
     private Boolean active;
     private LocalDateTime datecreated = LocalDateTime.now();
     private LocalDateTime dateupdated = LocalDateTime.now();

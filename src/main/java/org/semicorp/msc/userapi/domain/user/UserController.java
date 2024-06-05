@@ -2,7 +2,6 @@ package org.semicorp.msc.userapi.domain.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.semicorp.msc.userapi.domain.user.dto.AddUserDTO;
-import org.semicorp.msc.userapi.domain.user.dto.BasicUserDataDTO;
 import org.semicorp.msc.userapi.domain.user.dto.UserDTO;
 import org.semicorp.msc.userapi.domain.wallet.dto.WalletEncryptedDTO;
 import org.semicorp.msc.userapi.responses.TextResponse;
@@ -11,11 +10,15 @@ import org.semicorp.msc.userapi.security.CryptoUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.semicorp.msc.userapi.utils.Logger.logInfo;
 
@@ -28,6 +31,11 @@ public class UserController {
 
     @Value("${academi.service.core.url}")
     private String coreServiceUrl;
+
+    @Value("${academi.service.item.url}")
+    private String itemServiceUrl;
+
+    private String token;
 
     private final RestTemplate restTemplate;
 
@@ -43,9 +51,9 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity getAllUsers(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-        @RequestParam(value="field", required = false) String field,
-        @RequestParam(value="value", required = false) String value) throws Exception {
+    public ResponseEntity getAllUsersByField(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+                                             @RequestParam(value="field", required = false) String field,
+                                             @RequestParam(value="value", required = false) String value) throws Exception {
 
         User user = null;
         UserDTO userDTO = null;
@@ -99,39 +107,93 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity addUser(
-                            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-                            @RequestBody AddUserDTO addUserDTO) throws Exception {
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+            @RequestBody AddUserDTO addUserDTO) throws Exception {
         logInfo(String.format("Register new user: [username: %s]", addUserDTO.getUsername()), token);
 
-        // Get blockchain wallet via Core Service
-        // Wallet keys are encrypted and base64 encoded
-        String endpointUrl = coreServiceUrl + "/api/v1/wallet/create";
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token.substring(7));
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<WalletEncryptedDTO> response = restTemplate.exchange(endpointUrl,
-                HttpMethod.GET, entity, WalletEncryptedDTO.class);
-        WalletEncryptedDTO walletDetails = response.getBody();
-
+        this.token = token;
         User newUser = userService.createUserFromAddUserDto(addUserDTO);
-        newUser.setPrivKey(CryptoUtils.decrypt(walletDetails.getPrivateKeyEncrypted(), encryptionKey));
-        newUser.setPubKey(CryptoUtils.decrypt(walletDetails.getPublicKeyEncrypted(), encryptionKey));
-
-        // TODO: Need also assign College to a user based on the email
-        // System.out.println("EMAIL: " + addUserDTO.getEmail());
-
-        TextResponse insertResponse = userService.insert(newUser);
-        // Response when insert request didn't go well
-        if(insertResponse.getCode() != 200) {
-            return new ResponseEntity<>(insertResponse, HttpStatus.BAD_REQUEST);
+        // Get blockchain wallet via Core Service
+        WalletEncryptedDTO walletDetails = generateBlockchainWalletKeys();
+        if(walletDetails != null) {
+            // Decrypt keys. Keys are sent as encrypted strings
+            newUser.setPrivKey(CryptoUtils.decrypt(walletDetails.getPrivateKeyEncrypted(), encryptionKey));
+            newUser.setPubKey(CryptoUtils.decrypt(walletDetails.getPublicKeyEncrypted(), encryptionKey));
+        } else {
+            log.warn("Can't generate wallet keys for user {}", addUserDTO.getUsername());
+        }
+        // Insert users' college name into db
+        String collegeId = insertUsersCollegeIntoDb(addUserDTO);
+        newUser.setCollegeId(collegeId); // assign college ID from Item Service `college` db table
+        try {
+            // Insert user
+            TextResponse insertResponse = userService.insert(newUser);
+            // Response when insert request didn't go well
+            if(insertResponse.getCode() != 200) {
+                return new ResponseEntity<>(insertResponse, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            log.error("Can't insert new user: {}", addUserDTO.getUsername());
+            log.error(e.getMessage());
+            log.error(Arrays.toString(e.getStackTrace()));
         }
 
-        logInfo(String.format("User created: [username: %s]", addUserDTO.getUsername()), token);
         // Return encrypted wallet keys
-        newUser.setPubKey(walletDetails.getPublicKeyEncrypted());
-        newUser.setPrivKey(walletDetails.getPrivateKeyEncrypted());
-        newUser.setTokens(walletDetails.getBalance());
+        if(walletDetails != null) {
+            newUser.setPubKey(walletDetails.getPublicKeyEncrypted());
+            newUser.setPrivKey(walletDetails.getPrivateKeyEncrypted());
+            newUser.setTokens(walletDetails.getBalance());
+        }
         return new ResponseEntity<>(newUser, HttpStatus.OK);
+    }
+
+    /**
+     * Inserts users' college name into `items.college` table in Item Service
+     * It does not duplicate college names but returns `HttpStatus.CONFLICT` to indicate
+     * that the college entry is already present in the table.
+     * @param addUserDTO
+     */
+    private String insertUsersCollegeIntoDb(AddUserDTO addUserDTO) {
+        String collegeId = null;
+        // Add college to item schema table
+        String itemsEndpointUrl = itemServiceUrl + "/api/v1/college";
+        HttpHeaders headers2 = new HttpHeaders();
+        headers2.setContentType(MediaType.APPLICATION_JSON);
+        headers2.setBearerAuth(this.token.substring(7));
+        String payload = "{ \"name\": \"" + addUserDTO.getCollege()  +"\"}";
+        HttpEntity<String> request = new HttpEntity<>(payload, headers2);
+        try {
+            ResponseEntity<Map> exchange = restTemplate.exchange(itemsEndpointUrl,
+                    HttpMethod.POST, request, Map.class);
+            // Intercept collegeId from response
+            Map body = exchange.getBody();
+            if(body != null) {
+                collegeId = (String) body.get("id");
+            }
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.CONFLICT) {
+                log.info("College {} already exists in Item Service database", addUserDTO.getCollege());
+                log.error(e.getMessage());
+            }
+        }
+        return collegeId;
+    }
+
+    private WalletEncryptedDTO generateBlockchainWalletKeys() {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(this.token.substring(7));
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<WalletEncryptedDTO> response = restTemplate.exchange(
+                    coreServiceUrl + "/api/v1/wallet/create",
+                    HttpMethod.GET, entity, WalletEncryptedDTO.class);
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("Error while generating wallet keys");
+            log.error(e.getMessage());
+            log.error(Arrays.toString(e.getStackTrace()));
+        }
+        return null;
     }
 
     @GetMapping("/getkeys/{id}")
@@ -149,5 +211,6 @@ public class UserController {
 
         return new ResponseEntity<>(walletDto, HttpStatus.OK);
     }
+
 }
 

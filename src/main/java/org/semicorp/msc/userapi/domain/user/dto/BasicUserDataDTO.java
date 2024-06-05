@@ -15,6 +15,7 @@ public class BasicUserDataDTO {
     private String lastName;
     private String email;
     private String college;
+    private String collegeId;
     private Boolean active;
     private String pubKey;
     private int tokens;
