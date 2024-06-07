@@ -1,7 +1,8 @@
-package org.semicorp.msc.userapi.domain.user;
+package org.semicorp.msc.userapi.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
+import org.semicorp.msc.userapi.domain.user.User;
 import org.semicorp.msc.userapi.domain.user.dao.UserDAO;
 import org.semicorp.msc.userapi.domain.user.dao.UserRow;
 import org.semicorp.msc.userapi.domain.user.dto.AddUserDTO;

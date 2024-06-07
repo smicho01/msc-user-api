@@ -27,7 +27,7 @@ public class UserRowMapper implements RowMapper<User> {
                 rs.getString("lastname"),
                 rs.getString("email"),
                 rs.getString("college"),
-                rs.getString("collegeId"),
+                rs.getString("collegeid"),
                 rs.getBoolean("active"),
                 dateCreated,
                 dateUpdated,

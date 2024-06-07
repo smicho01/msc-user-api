@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.semicorp.msc.userapi.domain.user.dao.UserDAO;
 import org.semicorp.msc.userapi.domain.word.WordGeneratorService;
+import org.semicorp.msc.userapi.services.CoreService;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    private UserService userService;
+    private CoreService.UserService userService;
     private UserDAO userDAOMock;
 
     private WordGeneratorService wordGeneratorService;
@@ -28,7 +29,7 @@ class UserServiceTest {
         Jdbi jdbiMock = mock(Jdbi.class);
         userDAOMock = mock(UserDAO.class);
         doReturn(userDAOMock).when(jdbiMock).onDemand(UserDAO.class);
-        userService = new UserService(wordGeneratorService, jdbiMock);
+        userService = new CoreService.UserService(wordGeneratorService, jdbiMock);
     }
 
     @Test
