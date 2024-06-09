@@ -77,17 +77,11 @@ public class UserService {
             return  new TextResponse("Email exists", ResponseCodes.ALREADY_EXISTS);
         }
 
-        boolean insert = false;
         try {
-            // Insert user
-            insert = jdbi.onDemand(UserDAO.class).insert(new UserRow(newUser));
+            boolean insert = jdbi.onDemand(UserDAO.class).insert(new UserRow(newUser));
         } catch (Exception e) {
             log.error("Can't create new user {}", newUser.getUsername());
             log.error(e.getMessage());
-        }
-
-        if(!insert) {
-            log.warn("Can't insert user with id {}, and username: {}", newUser.getId(), newUser.getUsername());
             return new TextResponse("Insert error", ResponseCodes.FAIL);
         }
         return new TextResponse("User created", ResponseCodes.SUCCESS);
