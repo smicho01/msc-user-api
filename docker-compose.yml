@@ -2,18 +2,18 @@ version: '3.3'
 
 services:
 
-  user-service:
-    build: .
-    ports:
-      - "9091:9091"
-    environment:
-      - POSTGRESHOST=postgres
-      - POSTGRESUSER=student
-      - POSTGRESPASSWORD=password
-    depends_on:
-      - users-database-migrations
-    networks:
-      - msc
+#  user-service:
+#    build: .
+#    ports:
+#      - "9091:9091"
+#    environment:
+#      - POSTGRESHOST=postgres
+#      - POSTGRESUSER=student
+#      - POSTGRESPASSWORD=password
+#    depends_on:
+#      - users-database-migrations
+#    networks:
+#      - msc
 
   users-database-migrations:
     image: "liquibase/liquibase:4.15.0"
