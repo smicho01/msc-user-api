@@ -48,8 +48,8 @@ public class CoreService {
             headers.setBearerAuth(token.substring(7));
             HttpEntity<String> entity = new HttpEntity<>(headers);
             ResponseEntity<WalletEncryptedDTO> response = restTemplate.exchange(
-                    coreServiceUrl + "/api/v1/wallet/create",
-                    HttpMethod.GET, entity, WalletEncryptedDTO.class);
+                            coreServiceUrl + "/api/v1/wallet/create",
+                                HttpMethod.GET, entity, WalletEncryptedDTO.class);
             return response.getBody();
         } catch (Exception e) {
             log.error("Error while generating wallet keys");
@@ -151,10 +151,6 @@ public class CoreService {
                     .build();
             return user;
         }
-
-
-
-
 
     }
 }

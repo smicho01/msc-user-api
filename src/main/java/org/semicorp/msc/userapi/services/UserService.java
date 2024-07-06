@@ -1,7 +1,9 @@
 package org.semicorp.msc.userapi.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.statement.Update;
 import org.semicorp.msc.userapi.domain.user.User;
 import org.semicorp.msc.userapi.domain.user.dao.UserDAO;
 import org.semicorp.msc.userapi.domain.user.dao.UserRow;
@@ -42,7 +44,7 @@ public class UserService {
                 String errorMessage = USER_NOT_FOUND + " ID: " + id;
                 throw new UserNotFoundException(errorMessage);
             }
-        } catch(RuntimeException e) {
+        } catch (RuntimeException e) {
             log.warn(e.getMessage());
         }
         return user;
@@ -56,7 +58,7 @@ public class UserService {
             default -> null;
         };
 
-        if(user == null) {
+        if (user == null) {
             log.info("User not found. {}: {}", fieldName, fieldvalue);
             return null;
         }
@@ -66,15 +68,15 @@ public class UserService {
     public TextResponse insert(User newUser) {
         // Check if username exists
         User usernames = getUserByField("username", newUser.getUsername());
-        if(usernames != null) {
+        if (usernames != null) {
             log.warn("Username exists. username: {}", newUser.getUsername());
-            return  new TextResponse("Username exists", ResponseCodes.ALREADY_EXISTS);
+            return new TextResponse("Username exists", ResponseCodes.ALREADY_EXISTS);
         }
         // Check if email exists
         User emails = getUserByField("email", newUser.getEmail());
-        if(emails != null) {
+        if (emails != null) {
             log.warn("Email exists. email: {}", newUser.getUsername());
-            return  new TextResponse("Email exists", ResponseCodes.ALREADY_EXISTS);
+            return new TextResponse("Email exists", ResponseCodes.ALREADY_EXISTS);
         }
 
         try {
@@ -107,4 +109,16 @@ public class UserService {
     }
 
 
+    public Boolean updateField(String fieldName, String value, String userId) {
+        try (Handle handle = jdbi.open()) {
+            String sql = "UPDATE users.user SET " + fieldName + " = '" + value + "' WHERE id ='" + userId + "';";
+            try (Update update = handle.createUpdate(sql)) {
+                update.execute();
+            } catch (Exception e) {
+                log.error("Error updating field {} for user id {}. Error: {}", fieldName, userId, e.getMessage());
+                return false;
+            }
+        }
+        return true;
+    }
 }

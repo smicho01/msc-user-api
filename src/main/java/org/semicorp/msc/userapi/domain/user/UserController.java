@@ -1,5 +1,6 @@
 package org.semicorp.msc.userapi.domain.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.semicorp.msc.userapi.domain.user.dto.AddUserDTO;
 import org.semicorp.msc.userapi.domain.user.dto.UserDTO;
@@ -9,10 +10,12 @@ import org.semicorp.msc.userapi.responses.TextResponse;
 import org.semicorp.msc.userapi.security.CryptoUtils;
 import org.semicorp.msc.userapi.services.CoreService;
 import org.semicorp.msc.userapi.services.ItemService;
+import org.semicorp.msc.userapi.services.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,9 +24,11 @@ import static org.semicorp.msc.userapi.utils.Logger.logInfo;
 @RestController
 @RequestMapping("/api/v1/user")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
 
-    private final CoreService.UserService userService;
+    private final UserService userService;
+    private final CoreService.UserService userCoreService;
     private final CoreService coreService;
 
     private final ItemService itemService;
@@ -35,11 +40,7 @@ public class UserController {
         encryptionKey = value;
     }
 
-    public UserController(CoreService.UserService studentService, CoreService coreService, ItemService itemService) {
-        this.userService = studentService;
-        this.coreService = coreService;
-        this.itemService = itemService;
-    }
+
 
     @GetMapping
     public ResponseEntity getAllUsersByField(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
@@ -48,7 +49,7 @@ public class UserController {
 
         if (field == null) {
             logInfo("Get all users", token);
-            List<User> allUsers = userService.getAllUsers();
+            List<User> allUsers = userCoreService.getAllUsers();
             List<UserDTO> userDTOS = UserMapper.listUserToListUserDTO(allUsers);
             return new ResponseEntity<>(userDTOS, HttpStatus.OK);
         }
@@ -59,7 +60,7 @@ public class UserController {
         }
 
         logInfo("Get user by " + field + ": " + value , token);
-        User user = userService.getUserByField(field, value);
+        User user = userCoreService.getUserByField(field, value);
         UserDTO userDTO = null;
 
         if (user != null) {
@@ -76,7 +77,7 @@ public class UserController {
                                 @RequestBody AddUserDTO addUserDTO) throws Exception {
         logInfo(String.format("Register new user: [username: %s]", addUserDTO.getUsername()), token);
 
-        User newUser = userService.createUserFromAddUserDto(addUserDTO);
+        User newUser = userCoreService.createUserFromAddUserDto(addUserDTO);
         // Get blockchain wallet via Core Service
         WalletEncryptedDTO walletDetails = coreService.generateBlockchainWalletKeys(token);
         if(walletDetails != null) {
@@ -93,7 +94,7 @@ public class UserController {
 
         try {
             // Insert user
-            TextResponse insertResponse = userService.insert(newUser);
+            TextResponse insertResponse = userCoreService.insert(newUser);
             // Response when insert request didn't go well
             if(insertResponse.getCode() != 200) {
                 return new ResponseEntity<>(insertResponse, HttpStatus.BAD_REQUEST);
@@ -119,7 +120,7 @@ public class UserController {
                                             @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
                                             @PathVariable(value="id") String id) throws Exception {
         logInfo("Get keys for user id: " + id, token);
-        User user = userService.getUser(id);
+        User user = userCoreService.getUser(id);
         // Encrypt use wallet keys
         WalletEncryptedDTO walletDto = WalletEncryptedDTO.builder()
                 .publicKeyEncrypted(CryptoUtils.encrypt(user.getPubKey(), encryptionKey))
@@ -128,6 +129,22 @@ public class UserController {
                 .build();
 
         return new ResponseEntity<>(walletDto, HttpStatus.OK);
+    }
+
+    @PutMapping("{userId}")
+    public ResponseEntity<Boolean> updateUserField(@PathVariable("userId") String userId,
+                                                @RequestParam("field") String fieldName,
+                                                @RequestParam("value") String value) {
+        String[] allowedField = new String[] {"active", "tokens"};
+
+        if(!Arrays.asList(allowedField).contains(fieldName)) {
+            log.warn("Field {} not present in allowed list", fieldName);
+            return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+        }
+
+        Boolean response = userService.updateField(fieldName, value, userId);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }
