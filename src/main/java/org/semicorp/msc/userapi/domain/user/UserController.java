@@ -42,6 +42,12 @@ public class UserController {
 
 
 
+    @GetMapping("{userId}")
+    public ResponseEntity<User> getUserById( @PathVariable(value="userId") String userId) {
+        return new ResponseEntity<>(userService.getUserByField("id", userId), HttpStatus.OK);
+    }
+
+
     @GetMapping
     public ResponseEntity getAllUsersByField(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
                                              @RequestParam(value="field", required = false) String field,

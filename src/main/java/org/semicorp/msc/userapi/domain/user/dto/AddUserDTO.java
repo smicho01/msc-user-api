@@ -12,4 +12,5 @@ public class AddUserDTO {
     private String email;
     private String college;
     private String collegeid;
+    private int rank;
 }

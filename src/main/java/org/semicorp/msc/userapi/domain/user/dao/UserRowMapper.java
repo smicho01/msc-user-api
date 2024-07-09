@@ -33,7 +33,8 @@ public class UserRowMapper implements RowMapper<User> {
                 dateUpdated,
                 rs.getString("pubKey"),
                 rs.getString("privKey"),
-                rs.getInt("tokens")
+                rs.getInt("tokens"),
+                rs.getInt("rank")
         );
     }
 }

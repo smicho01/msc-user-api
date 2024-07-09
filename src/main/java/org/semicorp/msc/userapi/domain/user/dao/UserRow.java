@@ -25,6 +25,7 @@ public class UserRow  {
     private String pubKey;
     private String privKey;
     private int tokens;
+    private int rank;
 
     public UserRow(@NonNull final User user) {
         this.id = user.getId();
@@ -41,5 +42,6 @@ public class UserRow  {
         this.pubKey = user.getPubKey();
         this.privKey = user.getPrivKey();
         this.tokens = user.getTokens();
+        this.rank = user.getRank();
     }
 }

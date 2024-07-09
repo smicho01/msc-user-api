@@ -19,4 +19,5 @@ public class BasicUserDataDTO {
     private Boolean active;
     private String pubKey;
     private int tokens;
+    private int rank;
 }
