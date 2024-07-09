@@ -30,4 +30,8 @@ public interface UserDAO {
 
     @SqlUpdate(QueryUser.QUERY_INSERT_USER)
     boolean insert(@BindBean final UserRow userRow);
+
+    @RegisterRowMapper(UserRowMapper.class)
+    @SqlQuery(QueryUser.QUERY_FIND_BY_VISIBLEUSERNAME)
+    User findByVisibleUsername(@Bind("visibleusername") String visibleUsername);
 }

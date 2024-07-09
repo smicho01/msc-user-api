@@ -54,7 +54,7 @@ public class UserController {
             return new ResponseEntity<>(userDTOS, HttpStatus.OK);
         }
 
-        if (!Arrays.asList("username", "email", "id").contains(field)) {
+        if (!Arrays.asList("username", "email", "id", "visibleusername").contains(field)) {
             return new ResponseEntity<>(new TextResponse("Unknown parameter", ResponseCodes.FAIL),
                     HttpStatus.BAD_REQUEST);
         }

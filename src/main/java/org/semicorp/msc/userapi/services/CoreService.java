@@ -93,6 +93,7 @@ public class CoreService {
                 case "username" -> jdbi.onDemand(UserDAO.class).findByUsername(fieldvalue);
                 case "email" -> jdbi.onDemand(UserDAO.class).findByEmail(fieldvalue);
                 case "id" -> jdbi.onDemand(UserDAO.class).findById(fieldvalue);
+                case "visibleusername" -> jdbi.onDemand(UserDAO.class).findByVisibleUsername(fieldvalue);
                 default -> null;
             };
 
