@@ -26,5 +26,6 @@ public class UserDTO  {
     private LocalDateTime datecreated = LocalDateTime.now();
     private LocalDateTime dateupdated = LocalDateTime.now();
     private int tokens;
+    private int rank;
 
 }

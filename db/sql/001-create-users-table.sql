@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users.user (
     pubKey TEXT,
     privKey TEXT,
     tokens INTEGER DEFAULT 0,
+    rank INTEGER DEFAULT 0,
     datecreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     dateupdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
