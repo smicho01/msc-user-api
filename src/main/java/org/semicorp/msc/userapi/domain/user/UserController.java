@@ -3,6 +3,7 @@ package org.semicorp.msc.userapi.domain.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.semicorp.msc.userapi.domain.user.dto.AddUserDTO;
+import org.semicorp.msc.userapi.domain.user.dto.BasicUserDataDTO;
 import org.semicorp.msc.userapi.domain.user.dto.UserDTO;
 import org.semicorp.msc.userapi.domain.wallet.dto.WalletEncryptedDTO;
 import org.semicorp.msc.userapi.responses.ResponseCodes;
@@ -19,6 +20,7 @@ import javax.websocket.server.PathParam;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.semicorp.msc.userapi.domain.user.UserMapper.userToBasicUserDTO;
 import static org.semicorp.msc.userapi.utils.Logger.logInfo;
 
 @RestController
@@ -43,8 +45,10 @@ public class UserController {
 
 
     @GetMapping("{userId}")
-    public ResponseEntity<User> getUserById( @PathVariable(value="userId") String userId) {
-        return new ResponseEntity<>(userService.getUserByField("id", userId), HttpStatus.OK);
+    public ResponseEntity<BasicUserDataDTO> getUserById( @PathVariable(value="userId") String userId) throws Exception {
+        User user = userService.getUserByField("id", userId);
+        BasicUserDataDTO basicUserDataDTO = userToBasicUserDTO(user);
+        return new ResponseEntity<>(basicUserDataDTO, HttpStatus.OK);
     }
 
 
@@ -141,14 +145,23 @@ public class UserController {
     public ResponseEntity<Boolean> updateUserField(@PathVariable("userId") String userId,
                                                 @RequestParam("field") String fieldName,
                                                 @RequestParam("value") String value) {
-        String[] allowedField = new String[] {"active", "tokens"};
+        String[] allowedField = new String[] {"active", "tokens", "rank"};
 
         if(!Arrays.asList(allowedField).contains(fieldName)) {
             log.warn("Field {} not present in allowed list", fieldName);
             return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
         }
 
-        Boolean response = userService.updateField(fieldName, value, userId);
+        Boolean response = false;
+        switch (fieldName) {
+            case "rank":
+                User foundUser = userService.getUserByField("id", userId);
+                int userNewRank = foundUser.getRank() + Integer.parseInt(value);
+                userService.updateField(fieldName, String.valueOf(userNewRank), userId);
+                break;
+
+            default: response = userService.updateField(fieldName, value, userId);
+        }
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

@@ -114,6 +114,7 @@ public class UserService {
             String sql = "UPDATE users.user SET " + fieldName + " = '" + value + "' WHERE id ='" + userId + "';";
             try (Update update = handle.createUpdate(sql)) {
                 update.execute();
+                log.info("User id: {}, field: {} updated with value: {}", userId, fieldName, value);
             } catch (Exception e) {
                 log.error("Error updating field {} for user id {}. Error: {}", fieldName, userId, e.getMessage());
                 return false;
