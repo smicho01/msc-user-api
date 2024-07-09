@@ -48,6 +48,7 @@ public class UserMapper {
                     .active(user.getActive())
                     .pubKey(encryptedPubKey)
                     .tokens(user.getTokens())
+                    .rank(user.getRank())
                     .build();
         }
         return null;
@@ -68,6 +69,7 @@ public class UserMapper {
                 .datecreated(user.getDatecreated())
                 .dateupdated(user.getDateupdated())
                 .tokens(user.getTokens())
+                .rank(user.getRank())
                 .build();
     }
 
