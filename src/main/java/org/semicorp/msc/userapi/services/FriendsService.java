@@ -39,9 +39,6 @@ public class FriendsService {
             String sql = "INSERT INTO users.friends (user_id, friend_id, status) " +
                     " VALUES (?, ?, 'pending'), " +
                     " (?, ? , 'requested');";
-
-            System.out.println(sql);
-
             jdbi.withHandle(handle ->  handle.execute(sql, requestingUserId, requestedUserId, requestedUserId, requestingUserId));
             log.info("Friend request sent. From {} , to: {}",requestingUserId, requestedUserId);
             return true;
@@ -76,7 +73,19 @@ public class FriendsService {
         return friedRequests;
     }
 
-    public List<Friends> getFriendInvitationsForUserId(String userId) {
-        return null;
+    public Boolean acceptFriendRequest(String user1Id, String user2Id) {
+        try {
+            String sql = "UPDATE users.friends " +
+                    "SET status = 'accepted' " +
+                    "WHERE (user_id = ? AND friend_id = ?) " +
+                    "OR (user_id = ? AND friend_id = ?);";
+            jdbi.withHandle(handle ->  handle.execute(sql, user1Id, user2Id, user2Id, user1Id));
+            log.info("Friend request accepted between {} and {}", user1Id, user2Id);
+            return true;
+        } catch (Exception e) {
+            log.error("Error while accepting friend request between {} and {}  , ERROR: {}", user1Id,
+                            user2Id, e.getMessage());
+        }
+        return false;
     }
 }

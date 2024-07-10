@@ -59,4 +59,13 @@ public class FriendsController {
         log.info("Sent friend requests for user id: {} = {}", userId, requests.size());
         return new ResponseEntity<>(requests, HttpStatus.OK);
     }
+
+    @PutMapping("request/accept")
+    public ResponseEntity<Boolean> acceptFriendRequest(@RequestBody FriendRequestBody friendRequest) {
+        log.info("Accept friend request between {} and {}", friendRequest.getRequestedUserId(), friendRequest.getRequestingUserId());
+        Boolean result = friendsService.acceptFriendRequest(friendRequest.getRequestingUserId(),
+                friendRequest.getRequestedUserId());
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
 }
