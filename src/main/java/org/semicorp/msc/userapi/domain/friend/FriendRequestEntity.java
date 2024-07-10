@@ -10,9 +10,9 @@ import lombok.*;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class Friend {
-    private String id;
-    private String visibleUsername;
-    private String college;
-    private int rank;
+public class FriendRequestEntity {
+    String id;
+    String visibleUsername;
+    String college;
+    int rank;
 }

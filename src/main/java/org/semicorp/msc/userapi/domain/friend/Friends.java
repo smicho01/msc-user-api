@@ -4,6 +4,11 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+
+/**
+ * Stores friend requests
+ */
+
 @Data
 @Builder
 @NoArgsConstructor
