@@ -33,6 +33,14 @@ public class FriendsController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @DeleteMapping("request")
+    public ResponseEntity<Boolean> deleteFriendRequest(@RequestBody FriendRequestBody friendRequest) {
+        log.info("Delete friend request endpoint");
+        Boolean result = friendsService.deleteFriendRequest(friendRequest.getRequestingUserId(),
+                friendRequest.getRequestedUserId());
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     /**
      * Friends requests user get
      * @param userId

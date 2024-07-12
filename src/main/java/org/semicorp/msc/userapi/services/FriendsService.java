@@ -88,4 +88,19 @@ public class FriendsService {
         }
         return false;
     }
+
+    public Boolean deleteFriendRequest(String user1Id, String user2Id) {
+        try {
+            String sql = "DELETE FROM users.friends " +
+                    "WHERE (user_id = ? AND friend_id = ?) " +
+                    "OR (user_id = ? AND friend_id = ?);";
+            jdbi.withHandle(handle ->  handle.execute(sql, user1Id, user2Id, user2Id, user1Id));
+            log.info("Friend request deleted between {} and {}", user1Id, user2Id);
+            return true;
+        } catch (Exception e) {
+            log.error("Error while deleting friend request between {} and {}  , ERROR: {}", user1Id,
+                    user2Id, e.getMessage());
+        }
+        return false;
+    }
 }
