@@ -34,4 +34,8 @@ public interface UserDAO {
     @RegisterRowMapper(UserRowMapper.class)
     @SqlQuery(QueryUser.QUERY_FIND_BY_VISIBLEUSERNAME)
     User findByVisibleUsername(@Bind("visibleusername") String visibleUsername);
+
+    @RegisterRowMapper(UserRowMapper.class)
+    @SqlQuery(QueryUser.QUERY_FIND_BY_VISIBLEUSERNAME_LIKE)
+    List<User> getUserByVisibleUsernameLIKE(@Bind("username") String username);
 }

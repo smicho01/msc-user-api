@@ -52,7 +52,7 @@ public class UserService {
 
     public User getUserByField(String fieldName, String fieldvalue) {
         User user = switch (fieldName) {
-            case "username" -> jdbi.onDemand(UserDAO.class).findByUsername(fieldvalue);
+                case "username" -> jdbi.onDemand(UserDAO.class).findByUsername(fieldvalue);
             case "email" -> jdbi.onDemand(UserDAO.class).findByEmail(fieldvalue);
             case "id" -> jdbi.onDemand(UserDAO.class).findById(fieldvalue);
             default -> null;
@@ -121,5 +121,16 @@ public class UserService {
             }
         }
         return true;
+    }
+
+    public List<User> getUserByVisibleUsernameLIKE(String username) {
+        try {
+            List<User> userByVisibleUsernameLIKE = jdbi.onDemand(UserDAO.class).getUserByVisibleUsernameLIKE("%"+username+"%");
+            System.out.println(userByVisibleUsernameLIKE);
+            return userByVisibleUsernameLIKE;
+        } catch (Exception e) {
+            log.error("Can't get users by visible username LIKE. ERROR: {}", e.getMessage());
+            return null;
+        }
     }
 }

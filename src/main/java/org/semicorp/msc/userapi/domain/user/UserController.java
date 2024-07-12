@@ -1,5 +1,6 @@
 package org.semicorp.msc.userapi.domain.user;
 
+import com.google.common.base.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.semicorp.msc.userapi.domain.user.dto.AddUserDTO;
@@ -13,10 +14,11 @@ import org.semicorp.msc.userapi.services.CoreService;
 import org.semicorp.msc.userapi.services.ItemService;
 import org.semicorp.msc.userapi.services.UserService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.util.Arrays;
 import java.util.List;
 
@@ -49,6 +51,14 @@ public class UserController {
         User user = userService.getUserByField("id", userId);
         BasicUserDataDTO basicUserDataDTO = userToBasicUserDTO(user);
         return new ResponseEntity<>(basicUserDataDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("username/like/{username}")
+    public ResponseEntity<List<UserDTO>> getUserByVisibleUsernameLIKE( @PathVariable(value="username") String username) throws Exception {
+        List<User> users = userService.getUserByVisibleUsernameLIKE(username);
+        System.out.println(users.size());
+        List<UserDTO> userDTOS = UserMapper.listUserToListUserDTO(users);
+        return new ResponseEntity<>(userDTOS, HttpStatus.OK);
     }
 
 
