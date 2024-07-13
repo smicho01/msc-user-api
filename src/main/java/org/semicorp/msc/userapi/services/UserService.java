@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -126,11 +127,10 @@ public class UserService {
     public List<User> getUserByVisibleUsernameLIKE(String username) {
         try {
             List<User> userByVisibleUsernameLIKE = jdbi.onDemand(UserDAO.class).getUserByVisibleUsernameLIKE("%"+username+"%");
-            System.out.println(userByVisibleUsernameLIKE);
             return userByVisibleUsernameLIKE;
         } catch (Exception e) {
             log.error("Can't get users by visible username LIKE. ERROR: {}", e.getMessage());
-            return null;
+            return new ArrayList<>();
         }
     }
 }

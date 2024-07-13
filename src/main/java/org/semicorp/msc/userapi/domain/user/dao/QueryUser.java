@@ -11,6 +11,7 @@ public class QueryUser {
     public static final String QUERY_FIND_BY_VISIBLEUSERNAME = "SELECT * FROM users.user WHERE visibleusername =:visibleusername;";
     public static final String QUERY_FIND_BY_VISIBLEUSERNAME_LIKE = "SELECT * FROM users.\"user\" u " +
             "WHERE LOWER(u.visibleUsername) LIKE LOWER(:username) " +
+            "AND u.active = true " +
             "ORDER BY u.visibleUsername ASC;";
 
     static final String QUERY_INSERT_USER = "INSERT INTO users.user (id, username, visibleusername, firstname, lastname, email, college, collegeid, active, pubkey, privkey, tokens) " +

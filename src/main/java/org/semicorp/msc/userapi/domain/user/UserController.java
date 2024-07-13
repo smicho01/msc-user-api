@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -56,9 +57,11 @@ public class UserController {
     @GetMapping("username/like/{username}")
     public ResponseEntity<List<UserDTO>> getUserByVisibleUsernameLIKE( @PathVariable(value="username") String username) throws Exception {
         List<User> users = userService.getUserByVisibleUsernameLIKE(username);
-        System.out.println(users.size());
-        List<UserDTO> userDTOS = UserMapper.listUserToListUserDTO(users);
-        return new ResponseEntity<>(userDTOS, HttpStatus.OK);
+        if(users.size() > 0) {
+            List<UserDTO> userDTOS = UserMapper.listUserToListUserDTO(users);
+            return new ResponseEntity<>(userDTOS, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
 
 
