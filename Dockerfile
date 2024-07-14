@@ -5,6 +5,9 @@
 #ENTRYPOINT ["java","-jar","msc-user-api.jar"]
 #EXPOSE 9091
 
+# User comand below to build for ARM and AMD
+#  docker buildx build --platform linux/amd64,linux/arm64 -t sever3d/academichain-user-service --push .
+
 # First stage: build the JAR file
 FROM maven:3.8.4-openjdk-17 AS build
 
