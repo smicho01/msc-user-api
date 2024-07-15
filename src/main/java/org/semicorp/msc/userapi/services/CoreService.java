@@ -43,6 +43,7 @@ public class CoreService {
 
 
     public WalletEncryptedDTO generateBlockchainWalletKeys(String token) {
+        log.info("Attempt to generate blockchain wallet keys");
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(token.substring(7));
@@ -135,11 +136,11 @@ public class CoreService {
         }
 
         public User createUserFromAddUserDto(AddUserDTO addUserDTO) throws IOException {
-            UUID userId = UUID.randomUUID();
+            log.info("createUserFromAddUserDto: {} ",  addUserDTO.toString());
             String visibleUsername = wordGeneratorService.generateRandomUserName();
-
-            User user = User.builder()
-                    .id(userId.toString())
+            log.info("Visible Username for user will be: {}", visibleUsername);
+            return User.builder()
+                    .id(UUID.randomUUID().toString())
                     .visibleUsername(visibleUsername)
                     .username(addUserDTO.getUsername())
                     .firstName(addUserDTO.getFirstName())
@@ -150,7 +151,6 @@ public class CoreService {
                     .dateupdated(LocalDateTime.now())
                     .active(true)
                     .build();
-            return user;
         }
 
     }
