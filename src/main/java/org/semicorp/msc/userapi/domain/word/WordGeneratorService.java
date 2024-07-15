@@ -4,12 +4,16 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+//import java.nio.file.Files;
+//import java.nio.file.Paths;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 public class WordGeneratorService {
@@ -23,8 +27,14 @@ public class WordGeneratorService {
         Resource adjectiveResource = resourceLoader.getResource("classpath:adjectives.txt");
         Resource nounResource = resourceLoader.getResource("classpath:animals.txt");
 
-        List<String> adjectives = Files.readAllLines(Paths.get(adjectiveResource.getURI()));
-        List<String> nouns = Files.readAllLines(Paths.get(nounResource.getURI()));
+        BufferedReader adjectiveReader = new BufferedReader(new InputStreamReader(adjectiveResource.getInputStream(),
+                StandardCharsets.UTF_8));
+        BufferedReader nounReader = new BufferedReader(new InputStreamReader(nounResource.getInputStream(),
+                StandardCharsets.UTF_8));
+
+
+        List<String> adjectives = adjectiveReader.lines().collect(Collectors.toList());
+        List<String> nouns = nounReader.lines().collect(Collectors.toList());
 
         Random random = new Random();
         String randomAdjective = capitalizeFirstLetter(adjectives.get(random.nextInt(adjectives.size())));
