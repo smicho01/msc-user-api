@@ -13,6 +13,7 @@ services:
       - CORE_SERVICE_URL=${CORE_SERVICE_URL}
       - ITEM_SERVICE_URL=${ITEM_SERVICE_URL}
       - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
     depends_on:
       - users-database-migrations
     networks:
