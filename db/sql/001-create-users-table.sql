@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS users.user (
 CREATE TABLE IF NOT EXISTS users.friends (
     user_id VARCHAR(36) NOT NULL,
     friend_id VARCHAR(36) NOT NULL,
-    status VARCHAR(50) DEFAULT 'pending', -- to track request status (pending, accepted, rejected, etc.)
+    status VARCHAR(50) DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, friend_id),
     FOREIGN KEY (user_id) REFERENCES users."user"(id),
