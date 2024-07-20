@@ -28,8 +28,8 @@ services:
       - ./db/sql:/liquibase/sql
     command:
       - "--url=jdbc:postgresql://postgres:5432/${POSTGRESDB}"
-      - "--username=student"
-      - "--password=password"
+      - "--username=${POSTGRESUSER}"
+      - "--password=${POSTGRESPASSWORD}"
       - "--changeLogFile=changelog/db.changelog-main.yml"
       - "--liquibaseSchemaName=users"
       - "update"
