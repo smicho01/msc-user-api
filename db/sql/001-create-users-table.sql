@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users.user (
     dateupdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
-CREATE TABLE users.friends (
+CREATE TABLE IF NOT EXISTS users.friends (
     user_id VARCHAR(36) NOT NULL,
     friend_id VARCHAR(36) NOT NULL,
     status VARCHAR(50) DEFAULT 'pending', -- to track request status (pending, accepted, rejected, etc.)
