@@ -10,6 +10,7 @@ services:
       - POSTGRESHOST=${POSTGRESHOST}
       - POSTGRESUSER=${POSTGRESUSER}
       - POSTGRESPASSWORD=${POSTGRESPASSWORD}
+      - POSTGRESDB=${POSTGRESDB}
       - CORE_SERVICE_URL=${CORE_SERVICE_URL}
       - ITEM_SERVICE_URL=${ITEM_SERVICE_URL}
       - KEYCLOAK_URL=${KEYCLOAK_URL}
@@ -26,7 +27,7 @@ services:
       - ./db/changelog:/liquibase/changelog
       - ./db/sql:/liquibase/sql
     command:
-      - "--url=jdbc:postgresql://postgres:5432/mscstudents"
+      - "--url=jdbc:postgresql://postgres:5432/${POSTGRESDB}"
       - "--username=student"
       - "--password=password"
       - "--changeLogFile=changelog/db.changelog-main.yml"
