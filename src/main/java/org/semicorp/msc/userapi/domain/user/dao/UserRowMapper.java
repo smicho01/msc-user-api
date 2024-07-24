@@ -34,7 +34,8 @@ public class UserRowMapper implements RowMapper<User> {
                 rs.getString("pubKey"),
                 rs.getString("privKey"),
                 rs.getInt("tokens"),
-                rs.getInt("rank")
+                rs.getInt("rank"),
+                rs.getInt("imageid")
         );
     }
 }

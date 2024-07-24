@@ -31,5 +31,6 @@ public class User implements Serializable {
     private String privKey;
     private int tokens;
     private int rank;
+    private int imageid;
 
 }

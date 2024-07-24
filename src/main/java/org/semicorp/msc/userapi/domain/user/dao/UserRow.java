@@ -26,6 +26,7 @@ public class UserRow  {
     private String privKey;
     private int tokens;
     private int rank;
+    private int imageid;
 
     public UserRow(@NonNull final User user) {
         this.id = user.getId();
@@ -43,5 +44,6 @@ public class UserRow  {
         this.privKey = user.getPrivKey();
         this.tokens = user.getTokens();
         this.rank = user.getRank();
+        this.imageid = user.getImageid();
     }
 }

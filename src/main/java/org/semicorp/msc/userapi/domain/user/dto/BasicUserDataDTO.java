@@ -20,4 +20,5 @@ public class BasicUserDataDTO {
     private String pubKey;
     private int tokens;
     private int rank;
+    private int imageid;
 }

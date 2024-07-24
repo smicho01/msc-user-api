@@ -3,6 +3,7 @@ package org.semicorp.msc.userapi.domain.user;
 import org.semicorp.msc.userapi.domain.user.dao.UserRowMapper;
 import org.semicorp.msc.userapi.domain.user.dto.AddUserDTO;
 import org.semicorp.msc.userapi.domain.user.dto.BasicUserDataDTO;
+import org.semicorp.msc.userapi.domain.user.dto.MessageUserDTO;
 import org.semicorp.msc.userapi.domain.user.dto.UserDTO;
 import org.semicorp.msc.userapi.security.CryptoUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +50,7 @@ public class UserMapper {
                     .pubKey(encryptedPubKey)
                     .tokens(user.getTokens())
                     .rank(user.getRank())
+                    .imageid(user.getImageid())
                     .build();
         }
         return null;
@@ -70,6 +72,17 @@ public class UserMapper {
                 .dateupdated(user.getDateupdated())
                 .tokens(user.getTokens())
                 .rank(user.getRank())
+                .imageid(user.getImageid())
+                .build();
+    }
+
+    public static MessageUserDTO userToMessageUser(User user) {
+        return MessageUserDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .visibleUsername(user.getVisibleUsername())
+                .college(user.getCollege())
+                .imageid(user.getImageid())
                 .build();
     }
 

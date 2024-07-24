@@ -1,0 +1,18 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "003-update-users-add-imageid",
+        "author": "S Michota",
+        "changes": [
+          {
+            "sqlFile": {
+              "dbms": "postgresql",
+              "path": "sql/003-update-users-add-imageid.sql"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

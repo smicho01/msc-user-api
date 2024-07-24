@@ -27,5 +27,5 @@ public class UserDTO  {
     private LocalDateTime dateupdated = LocalDateTime.now();
     private int tokens;
     private int rank;
-
+    private int imageid;
 }
