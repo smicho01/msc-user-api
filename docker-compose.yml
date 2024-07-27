@@ -1,26 +1,26 @@
 version: '3.3'
 
 services:
-
-  academi-user-service:
-    image: sever3d/academichain-user-service
-    ports:
-      - "9091:9091"
-    environment:
-      - POSTGRESHOST=${POSTGRESHOST}
-      - POSTGRESPORT=${POSTGRESPORT}
-      - POSTGRESUSER=${POSTGRESUSER}
-      - POSTGRESPASSWORD=${POSTGRESPASSWORD}
-      - POSTGRESDB=${POSTGRESDB}
-      - CORE_SERVICE_URL=${CORE_SERVICE_URL}
-      - ITEM_SERVICE_URL=${ITEM_SERVICE_URL}
-      - KEYCLOAK_URL=${KEYCLOAK_URL}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-    depends_on:
-      - users-database-migrations
-    networks:
-      - msc
-        
+#
+#  academi-user-service:
+#    image: sever3d/academichain-user-service
+#    ports:
+#      - "9091:9091"
+#    environment:
+#      - POSTGRESHOST=${POSTGRESHOST}
+#      - POSTGRESPORT=${POSTGRESPORT}
+#      - POSTGRESUSER=${POSTGRESUSER}
+#      - POSTGRESPASSWORD=${POSTGRESPASSWORD}
+#      - POSTGRESDB=${POSTGRESDB}
+#      - CORE_SERVICE_URL=${CORE_SERVICE_URL}
+#      - ITEM_SERVICE_URL=${ITEM_SERVICE_URL}
+#      - KEYCLOAK_URL=${KEYCLOAK_URL}
+#      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+#    depends_on:
+#      - users-database-migrations
+#    networks:
+#      - msc
+#
 
   users-database-migrations:
     image: "liquibase/liquibase:4.15.0"

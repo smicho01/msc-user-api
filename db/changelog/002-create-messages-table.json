@@ -1,0 +1,18 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "002-create-messages-table",
+        "author": "S Michota",
+        "changes": [
+          {
+            "sqlFile": {
+              "dbms": "postgresql",
+              "path": "sql/002-create-messages-table.sql"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
