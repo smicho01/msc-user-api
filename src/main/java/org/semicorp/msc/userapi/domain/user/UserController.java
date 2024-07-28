@@ -61,11 +61,25 @@ public class UserController {
     }
 
 
+    /**
+     * Retrieves all users based on the specified field and value.
+     *
+     * @param token      The authorization token provided in the request header.
+     * @param field      The field to search for users (optional). Possible values are "username", "email", "id", "visibleusername".
+     * @param value      The value of the field to search for users (optional).
+     * @param otherParam Other parameter (optional) . Usage example: "updateTokens" - will update user tokens
+     * @return ResponseEntity containing the users found based on the specified field and value.
+     *         If the field is not specified, returns a list of all users in the system.
+     *         If the field is specified and a user is found, returns the user details as a UserDTO object.
+     *         If the field is specified but no user is found, returns HTTP status code 400 (Bad Request).
+     *         If the user is found but the user id is null, returns HTTP status code 404 (Not Found).
+     */
     @GetMapping
     public ResponseEntity getAllUsersByField(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
                                              @RequestParam(value="field", required = false) String field,
-                                             @RequestParam(value="value", required = false) String value)  {
-
+                                             @RequestParam(value="value", required = false) String value,
+                                             @RequestParam(value = "otherParam", required = false) String otherParam)  {
+        log.info("Called method UserController.getAllUsersByField");
         if (field == null) {
             logInfo("Get all users", token);
             List<User> allUsers = userService.getAllUsers();
@@ -88,11 +102,18 @@ public class UserController {
         } else if (user.getId() == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        UserDTO userDTO = null;
 
-        if (user != null) {
-            userDTO = UserMapper.userToUserDTO(user);
+        if (otherParam != null && otherParam.equals("updateTokens")) {
+            log.info("Request otherParam: {}", otherParam);
+            Boolean isUpdated = userService.updateUserTokens(token, user.getId(),  user.getPubKey());
+            if(isUpdated) {
+                log.info("Tokens updated for user id {}", user.getId());
+                user = userService.getUserByField("id", user.getId()); // get updated user
+            } else {
+                log.warn("Unable to update tokens for user id {}", user.getId());
+            }
         }
+        UserDTO userDTO = UserMapper.userToUserDTO(user);
 
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }

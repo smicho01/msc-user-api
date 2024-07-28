@@ -1,6 +1,7 @@
 package org.semicorp.msc.userapi.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.semicorp.msc.userapi.domain.user.User;
 import org.semicorp.msc.userapi.domain.wallet.dto.WalletEncryptedDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -43,4 +44,5 @@ public class CoreService {
         }
         return null;
     }
+
 }

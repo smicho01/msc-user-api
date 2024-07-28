@@ -9,11 +9,18 @@ import org.semicorp.msc.userapi.domain.user.dao.UserDAO;
 import org.semicorp.msc.userapi.domain.user.dao.UserRow;
 import org.semicorp.msc.userapi.domain.user.dto.AddUserDTO;
 import org.semicorp.msc.userapi.domain.user.exceptions.UserNotFoundException;
+import org.semicorp.msc.userapi.domain.wallet.dto.WalletEncryptedDTO;
 import org.semicorp.msc.userapi.domain.word.WordGeneratorService;
 import org.semicorp.msc.userapi.responses.ResponseCodes;
 import org.semicorp.msc.userapi.responses.TextResponse;
+import org.semicorp.msc.userapi.responses.WalletBalanceResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -29,14 +36,18 @@ import static org.semicorp.msc.userapi.domain.user.UserConstants.USER_NOT_FOUND;
 public class UserService {
 
     private final WordGeneratorService wordGeneratorService;
-    private final Jdbi jdbi;
 
+    @Value("${academi.service.core.url}")
+    private String coreServiceUrl;
+    private final Jdbi jdbi;
+    private final RestTemplate restTemplate;
     @Value("${academi.service.user.numberofuserimagesavailable}")
     private Integer numberOfUserImagesAvailable;
 
-    public UserService(WordGeneratorService wordGeneratorService, Jdbi jdbi) {
+    public UserService(WordGeneratorService wordGeneratorService, Jdbi jdbi, RestTemplate restTemplate) {
         this.wordGeneratorService = wordGeneratorService;
         this.jdbi = jdbi;
+        this.restTemplate = restTemplate;
     }
 
     public List<User> getAllUsers() {
@@ -62,6 +73,7 @@ public class UserService {
     }
 
     public User getUserByField(String fieldName, String fieldvalue) {
+        log.info("Get user by field: {} and value: {}", fieldName, fieldvalue);
         try {
             User user = switch (fieldName) {
                 case "username" -> jdbi.onDemand(UserDAO.class).findByUsername(fieldvalue);
@@ -137,11 +149,12 @@ public class UserService {
 
 
     public Boolean updateField(String fieldName, String value, String userId) {
+        log.info("Request to update field name: {} with value: {} for user id: {}", fieldName, value, userId);
         try (Handle handle = jdbi.open()) {
             String sql = "UPDATE users.user SET " + fieldName + " = '" + value + "' WHERE id ='" + userId + "';";
             try (Update update = handle.createUpdate(sql)) {
                 update.execute();
-                log.info("User id: {}, field: {} updated with value: {}", userId, fieldName, value);
+                log.info("Field Updated. User id: {}, field: {} updated with value: {}", userId, fieldName, value);
             } catch (Exception e) {
                 log.error("Error updating field {} for user id {}. Error: {}", fieldName, userId, e.getMessage());
                 return false;
@@ -157,6 +170,26 @@ public class UserService {
         } catch (Exception e) {
             log.error("Can't get users by visible username LIKE. ERROR: {}", e.getMessage());
             return new ArrayList<>();
+        }
+    }
+
+    public Boolean updateUserTokens(String jwtToken, String userId, String userWalletPublicKey) {
+        log.info("Call method UserService updateUserTokens");
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken.substring(7));
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<WalletBalanceResponse> response = restTemplate.exchange(
+                    coreServiceUrl + "/api/v1/wallet/" + userWalletPublicKey,
+                    HttpMethod.GET, entity, WalletBalanceResponse.class);
+
+            WalletBalanceResponse walletBalanceResponse = response.getBody();
+            log.info("Wallet balance response: {}", walletBalanceResponse);
+            assert walletBalanceResponse != null;
+            return updateField("tokens", String.valueOf(walletBalanceResponse.getBalance()), userId);
+        } catch (Exception e) {
+            log.error("Error updating user tokens. Error: {}", e.getMessage());
+            return false;
         }
     }
 }
