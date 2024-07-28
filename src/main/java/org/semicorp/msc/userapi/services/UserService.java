@@ -10,14 +10,16 @@ import org.semicorp.msc.userapi.domain.user.dao.UserRow;
 import org.semicorp.msc.userapi.domain.user.dto.AddUserDTO;
 import org.semicorp.msc.userapi.domain.user.exceptions.UserNotFoundException;
 import org.semicorp.msc.userapi.domain.word.WordGeneratorService;
-import org.semicorp.msc.userapi.responses.TextResponse;
 import org.semicorp.msc.userapi.responses.ResponseCodes;
+import org.semicorp.msc.userapi.responses.TextResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import static org.semicorp.msc.userapi.domain.user.UserConstants.USER_NOT_FOUND;
@@ -29,13 +31,21 @@ public class UserService {
     private final WordGeneratorService wordGeneratorService;
     private final Jdbi jdbi;
 
+    @Value("${academi.service.user.numberofuserimagesavailable}")
+    private Integer numberOfUserImagesAvailable;
+
     public UserService(WordGeneratorService wordGeneratorService, Jdbi jdbi) {
         this.wordGeneratorService = wordGeneratorService;
         this.jdbi = jdbi;
     }
 
     public List<User> getAllUsers() {
-        return jdbi.onDemand(UserDAO.class).findAll();
+        try {
+            return jdbi.onDemand(UserDAO.class).findAll();
+        } catch (Exception e) {
+            log.error("Error getting all users. Error: {}", e.getMessage());
+            return null;
+        }
     }
 
     public User getUser(String id) {
@@ -52,50 +62,67 @@ public class UserService {
     }
 
     public User getUserByField(String fieldName, String fieldvalue) {
-        User user = switch (fieldName) {
+        try {
+            User user = switch (fieldName) {
                 case "username" -> jdbi.onDemand(UserDAO.class).findByUsername(fieldvalue);
-            case "email" -> jdbi.onDemand(UserDAO.class).findByEmail(fieldvalue);
-            case "id" -> jdbi.onDemand(UserDAO.class).findById(fieldvalue);
-            default -> null;
-        };
+                case "email" -> jdbi.onDemand(UserDAO.class).findByEmail(fieldvalue);
+                case "id" -> jdbi.onDemand(UserDAO.class).findById(fieldvalue);
+                case "visibleusername" -> jdbi.onDemand(UserDAO.class).findByVisibleUsername(fieldvalue);
+                default -> null;
+            };
 
-        if (user == null) {
-            log.info("User not found. {}: {}", fieldName, fieldvalue);
+            if (user == null) {
+                log.info("User not found. {}: {}", fieldName, fieldvalue);
+                return null;
+            }
+            return user;
+        } catch (Exception e) {
+            log.info("Error while getting user by field name: {} and value: {}", fieldName, fieldvalue);
             return null;
         }
-        return user;
     }
 
     public TextResponse insert(User newUser) {
         // Check if username exists
         User usernames = getUserByField("username", newUser.getUsername());
-        if (usernames != null) {
+        if(usernames != null) {
             log.warn("Username exists. username: {}", newUser.getUsername());
-            return new TextResponse("Username exists", ResponseCodes.ALREADY_EXISTS);
+            return  new TextResponse("Username exists", ResponseCodes.ALREADY_EXISTS);
         }
         // Check if email exists
         User emails = getUserByField("email", newUser.getEmail());
-        if (emails != null) {
+        if(emails != null) {
             log.warn("Email exists. email: {}", newUser.getUsername());
-            return new TextResponse("Email exists", ResponseCodes.ALREADY_EXISTS);
+            return  new TextResponse("Email exists", ResponseCodes.ALREADY_EXISTS);
         }
 
+        boolean insert = false;
         try {
-            boolean insert = jdbi.onDemand(UserDAO.class).insert(new UserRow(newUser));
+            // Draw user avatar image number
+            Random rand = new Random();
+            int avatarNumber = rand.nextInt(numberOfUserImagesAvailable) + 1;
+            log.info("User {} avatar image number: {}", newUser.getUsername(), avatarNumber);
+            newUser.setImageid(avatarNumber);
+            // Insert user
+            insert = jdbi.onDemand(UserDAO.class).insert(new UserRow(newUser));
         } catch (Exception e) {
             log.error("Can't create new user {}", newUser.getUsername());
             log.error(e.getMessage());
+        }
+
+        if(!insert) {
+            log.warn("Can't insert user with id {}, and username: {}", newUser.getId(), newUser.getUsername());
             return new TextResponse("Insert error", ResponseCodes.FAIL);
         }
         return new TextResponse("User created", ResponseCodes.SUCCESS);
     }
 
     public User createUserFromAddUserDto(AddUserDTO addUserDTO) throws IOException {
-        UUID userId = UUID.randomUUID();
+        log.info("createUserFromAddUserDto: {} ",  addUserDTO.toString());
         String visibleUsername = wordGeneratorService.generateRandomUserName();
-
-        User user = User.builder()
-                .id(userId.toString())
+        log.info("Visible Username for user will be: {}", visibleUsername);
+        return User.builder()
+                .id(UUID.randomUUID().toString())
                 .visibleUsername(visibleUsername)
                 .username(addUserDTO.getUsername())
                 .firstName(addUserDTO.getFirstName())
@@ -106,7 +133,6 @@ public class UserService {
                 .dateupdated(LocalDateTime.now())
                 .active(true)
                 .build();
-        return user;
     }
 
 
