@@ -13,6 +13,6 @@ public class QueryUser {
             "AND u.active = true " +
             "ORDER BY u.visibleUsername ASC;";
 
-    static final String QUERY_INSERT_USER = "INSERT INTO users.user (id, username, visibleusername, firstname, lastname, email, college, collegeid, active, pubkey, privkey, tokens) " +
-            "VALUES(:id, :username, :visibleUsername, :firstName, :lastName, :email, :college, :collegeid, :active, :pubKey, :privKey, :tokens );";
+    static final String QUERY_INSERT_USER = "INSERT INTO users.user (id, username, visibleusername, firstname, lastname, email, college, collegeid, active, pubkey, privkey, tokens, imageid) " +
+            "VALUES(:id, :username, :visibleUsername, :firstName, :lastName, :email, :college, :collegeid, :active, :pubKey, :privKey, :tokens, :imageid );";
 }

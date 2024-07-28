@@ -1,6 +1,5 @@
 package org.semicorp.msc.userapi.domain.user;
 
-import com.google.common.base.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.semicorp.msc.userapi.domain.user.dto.AddUserDTO;
@@ -33,9 +32,7 @@ import static org.semicorp.msc.userapi.utils.Logger.logInfo;
 public class UserController {
 
     private final UserService userService;
-    private final CoreService.UserService userCoreService;
     private final CoreService coreService;
-
     private final ItemService itemService;
 
     public static String encryptionKey;
@@ -46,7 +43,6 @@ public class UserController {
     }
 
 
-
     @GetMapping("{userId}")
     public ResponseEntity<BasicUserDataDTO> getUserById( @PathVariable(value="userId") String userId) throws Exception {
         User user = userService.getUserByField("id", userId);
@@ -55,7 +51,7 @@ public class UserController {
     }
 
     @GetMapping("username/like/{username}")
-    public ResponseEntity<List<UserDTO>> getUserByVisibleUsernameLIKE( @PathVariable(value="username") String username) throws Exception {
+    public ResponseEntity<List<UserDTO>> getUserByVisibleUsernameLIKE( @PathVariable(value="username") String username) {
         List<User> users = userService.getUserByVisibleUsernameLIKE(username);
         if(users.size() > 0) {
             List<UserDTO> userDTOS = UserMapper.listUserToListUserDTO(users);
@@ -68,11 +64,14 @@ public class UserController {
     @GetMapping
     public ResponseEntity getAllUsersByField(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
                                              @RequestParam(value="field", required = false) String field,
-                                             @RequestParam(value="value", required = false) String value) throws Exception {
+                                             @RequestParam(value="value", required = false) String value)  {
 
         if (field == null) {
             logInfo("Get all users", token);
-            List<User> allUsers = userCoreService.getAllUsers();
+            List<User> allUsers = userService.getAllUsers();
+            if(allUsers == null) {
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            }
             List<UserDTO> userDTOS = UserMapper.listUserToListUserDTO(allUsers);
             return new ResponseEntity<>(userDTOS, HttpStatus.OK);
         }
@@ -83,7 +82,12 @@ public class UserController {
         }
 
         logInfo("Get user by " + field + ": " + value , token);
-        User user = userCoreService.getUserByField(field, value);
+        User user = userService.getUserByField(field, value);
+        if(user == null) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        } else if (user.getId() == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
         UserDTO userDTO = null;
 
         if (user != null) {
@@ -100,7 +104,7 @@ public class UserController {
                                 @RequestBody AddUserDTO addUserDTO) throws Exception {
         logInfo(String.format("Register new user: [username: %s]", addUserDTO.getUsername()), token);
 
-        User newUser = userCoreService.createUserFromAddUserDto(addUserDTO);
+        User newUser = userService.createUserFromAddUserDto(addUserDTO);
         // Get blockchain wallet via Core Service
         WalletEncryptedDTO walletDetails = coreService.generateBlockchainWalletKeys(token);
         if(walletDetails != null) {
@@ -117,7 +121,7 @@ public class UserController {
 
         try {
             // Insert user
-            TextResponse insertResponse = userCoreService.insert(newUser);
+            TextResponse insertResponse = userService.insert(newUser);
             // Response when insert request didn't go well
             if(insertResponse.getCode() != 200) {
                 return new ResponseEntity<>(insertResponse, HttpStatus.BAD_REQUEST);
@@ -143,7 +147,7 @@ public class UserController {
                                             @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
                                             @PathVariable(value="id") String id) throws Exception {
         logInfo("Get keys for user id: " + id, token);
-        User user = userCoreService.getUser(id);
+        User user = userService.getUser(id);
         // Encrypt use wallet keys
         WalletEncryptedDTO walletDto = WalletEncryptedDTO.builder()
                 .publicKeyEncrypted(CryptoUtils.encrypt(user.getPubKey(), encryptionKey))
