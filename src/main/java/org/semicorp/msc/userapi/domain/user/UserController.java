@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.semicorp.msc.userapi.domain.user.UserMapper.userToBasicUserDTO;
 import static org.semicorp.msc.userapi.utils.Logger.logInfo;
@@ -51,9 +52,18 @@ public class UserController {
     }
 
     @GetMapping("username/like/{username}")
-    public ResponseEntity<List<UserDTO>> getUserByVisibleUsernameLIKE( @PathVariable(value="username") String username) {
-        List<User> users = userService.getUserByVisibleUsernameLIKE(username);
-        if(users.size() > 0) {
+    public ResponseEntity<List<UserDTO>> getUserByVisibleUsernameLIKE(
+            @PathVariable(value="username") String username,
+            @RequestParam(required = false) Map<String, String> urlParams
+    ) {
+        String userCollegeId = null;
+        if (urlParams.containsKey("collegeId") && urlParams.get("collegeId") != null) {
+            userCollegeId = urlParams.get("collegeId");
+            log.info("Request with parameter collegeId: {}", userCollegeId);
+        }
+
+        List<User> users = userService.getUserByVisibleUsernameLIKE(username, userCollegeId);
+        if(!users.isEmpty()) {
             List<UserDTO> userDTOS = UserMapper.listUserToListUserDTO(users);
             return new ResponseEntity<>(userDTOS, HttpStatus.OK);
         }
