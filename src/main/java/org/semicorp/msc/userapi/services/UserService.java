@@ -163,14 +163,25 @@ public class UserService {
         return true;
     }
 
-    public List<User> getUserByVisibleUsernameLIKE(String username) {
-        try {
-            List<User> userByVisibleUsernameLIKE = jdbi.onDemand(UserDAO.class).getUserByVisibleUsernameLIKE("%"+username+"%");
-            return userByVisibleUsernameLIKE;
-        } catch (Exception e) {
-            log.error("Can't get users by visible username LIKE. ERROR: {}", e.getMessage());
-            return new ArrayList<>();
+    public List<User> getUserByVisibleUsernameLIKE(String username, String collegeId) {
+        log.info("Get users by username like: {}", username);
+        String collegeWhereClause = "";
+        if(collegeId != null) {
+            collegeWhereClause = String.format(" AND u.collegeid = '%s'  ", collegeId);
         }
+
+        String sql =  "SELECT * FROM users.user u " +
+                " WHERE LOWER(u.visibleUsername) LIKE LOWER(:username) " +
+                " AND u.active = true " +
+                collegeWhereClause +
+                " ORDER BY u.visibleUsername ASC;";
+
+        List<User> users = jdbi.withHandle(handle -> handle.createQuery(sql)
+                .bind("username", "%"+username+"%")
+                .mapToBean(User.class)
+                .list());
+        log.info("Results size: {}", users.size());
+        return users;
     }
 
     public Boolean updateUserTokens(String jwtToken, String userId, String userWalletPublicKey) {
