@@ -39,6 +39,6 @@ jobs:
           file: ./db/Dockerfile
           push: true
           tags: |
-            docker.io/sever3d/academichain-user-service:${{ env.TAG }}
-            docker.io/sever3d/academichain-user-service:latest-branch
+            docker.io/sever3d/academichain-user-database:${{ env.TAG }}
+            docker.io/sever3d/academichain-user-database:latest-branch
           platforms: linux/amd64,linux/arm64
