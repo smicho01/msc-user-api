@@ -39,8 +39,8 @@ public class FriendsService {
             String sql = "INSERT INTO users.friends (user_id, friend_id, status) " +
                     " VALUES (?, ?, 'pending'), " +
                     " (?, ? , 'requested');";
-            jdbi.withHandle(handle ->  handle.execute(sql, requestingUserId, requestedUserId, requestedUserId, requestingUserId));
-            log.info("Friend request sent. From {} , to: {}",requestingUserId, requestedUserId);
+            jdbi.withHandle(handle -> handle.execute(sql, requestingUserId, requestedUserId, requestedUserId, requestingUserId));
+            log.info("Friend request sent. From {} , to: {}", requestingUserId, requestedUserId);
             return true;
         } catch (Exception e) {
             log.error("Error while sending friend request From {} , to: {}  , ERROR: {}", requestingUserId,
@@ -50,27 +50,30 @@ public class FriendsService {
     }
 
     /**
-     *
      * @param userId
-     * @param type 'requested' - for received request ; 'pending' - for sent requests
+     * @param type   'requested' - for received request ; 'pending' - for sent requests
      * @return
      */
     public List<FriendRequestEntity> getFriendRequestsForUserId(String userId, String type) {
+        log.info("Get friend requests for user id: {}", userId);
+        try {
+            String sql = "SELECT u.id, u.visibleusername, u.college, u.rank " +
+                    "from users.friends f " +
+                    "JOIN users.user u ON (f.friend_id = u.id) " +
+                    "AND f.status = :type " +
+                    "AND f.user_id = :userId;";
 
-        String sql = "SELECT u.id, u.visibleusername, u.college, u.rank " +
-                "from users.friends f " +
-                "JOIN users.user u ON (f.friend_id = u.id) " +
-                "AND f.status = :type " +
-                "AND f.user_id = :userId;";
+            List<FriendRequestEntity> friedRequests = jdbi.withHandle(handle -> handle.createQuery(sql)
+                    .bind("userId", userId)
+                    .bind("type", type)
+                    .mapToBean(FriendRequestEntity.class)
+                    .stream().toList());
 
-        List<FriendRequestEntity> friedRequests = jdbi.withHandle(handle -> handle.createQuery(sql)
-                .bind("userId", userId)
-                .bind("type", type)
-                .mapToBean(FriendRequestEntity.class)
-                .stream().toList());
-
-
-        return friedRequests;
+            return friedRequests;
+        } catch (Exception e) {
+            log.error("Error while getting friend requests for user id: {}, ERROR: {}", userId, e.getMessage());
+            return null;
+        }
     }
 
     public Boolean acceptFriendRequest(String user1Id, String user2Id) {
@@ -79,12 +82,12 @@ public class FriendsService {
                     "SET status = 'accepted' " +
                     "WHERE (user_id = ? AND friend_id = ?) " +
                     "OR (user_id = ? AND friend_id = ?);";
-            jdbi.withHandle(handle ->  handle.execute(sql, user1Id, user2Id, user2Id, user1Id));
+            jdbi.withHandle(handle -> handle.execute(sql, user1Id, user2Id, user2Id, user1Id));
             log.info("Friend request accepted between {} and {}", user1Id, user2Id);
             return true;
         } catch (Exception e) {
             log.error("Error while accepting friend request between {} and {}  , ERROR: {}", user1Id,
-                            user2Id, e.getMessage());
+                    user2Id, e.getMessage());
         }
         return false;
     }
@@ -94,7 +97,7 @@ public class FriendsService {
             String sql = "DELETE FROM users.friends " +
                     "WHERE (user_id = ? AND friend_id = ?) " +
                     "OR (user_id = ? AND friend_id = ?);";
-            jdbi.withHandle(handle ->  handle.execute(sql, user1Id, user2Id, user2Id, user1Id));
+            jdbi.withHandle(handle -> handle.execute(sql, user1Id, user2Id, user2Id, user1Id));
             log.info("Friend request deleted between {} and {}", user1Id, user2Id);
             return true;
         } catch (Exception e) {
