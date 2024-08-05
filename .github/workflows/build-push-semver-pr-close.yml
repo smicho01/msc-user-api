@@ -62,8 +62,8 @@ jobs:
           file: ./db/Dockerfile
           push: true
           tags: |
-            docker.io/sever3d/academichain-item-database:${{ steps.calculate.outputs.version }}
-            docker.io/sever3d/academichain-item-database:latest
+            docker.io/sever3d/academichain-user-database:${{ steps.calculate.outputs.version }}
+            docker.io/sever3d/academichain-user-database:latest
           platforms: linux/amd64,linux/arm64
 
 
