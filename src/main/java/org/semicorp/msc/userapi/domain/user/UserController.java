@@ -8,20 +8,21 @@ import org.semicorp.msc.userapi.domain.user.dto.UserDTO;
 import org.semicorp.msc.userapi.domain.wallet.dto.WalletEncryptedDTO;
 import org.semicorp.msc.userapi.responses.ResponseCodes;
 import org.semicorp.msc.userapi.responses.TextResponse;
+import org.semicorp.msc.userapi.responses.UserFieldUpdateResponse;
 import org.semicorp.msc.userapi.security.CryptoUtils;
 import org.semicorp.msc.userapi.services.CoreService;
 import org.semicorp.msc.userapi.services.ItemService;
 import org.semicorp.msc.userapi.services.UserService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.semicorp.msc.userapi.domain.user.UserMapper.userToBasicUserDTO;
 import static org.semicorp.msc.userapi.utils.Logger.logInfo;
@@ -45,7 +46,7 @@ public class UserController {
 
 
     @GetMapping("{userId}")
-    public ResponseEntity<BasicUserDataDTO> getUserById( @PathVariable(value="userId") String userId) throws Exception {
+    public ResponseEntity<BasicUserDataDTO> getUserById(@PathVariable(value = "userId") String userId) throws Exception {
         User user = userService.getUserByField("id", userId);
         BasicUserDataDTO basicUserDataDTO = userToBasicUserDTO(user);
         return new ResponseEntity<>(basicUserDataDTO, HttpStatus.OK);
@@ -53,7 +54,7 @@ public class UserController {
 
     @GetMapping("username/like/{username}")
     public ResponseEntity<List<UserDTO>> getUserByVisibleUsernameLIKE(
-            @PathVariable(value="username") String username,
+            @PathVariable(value = "username") String username,
             @RequestParam(required = false) Map<String, String> urlParams
     ) {
         String userCollegeId = null;
@@ -63,7 +64,7 @@ public class UserController {
         }
 
         List<User> users = userService.getUserByVisibleUsernameLIKE(username, userCollegeId);
-        if(!users.isEmpty()) {
+        if (!users.isEmpty()) {
             List<UserDTO> userDTOS = UserMapper.listUserToListUserDTO(users);
             return new ResponseEntity<>(userDTOS, HttpStatus.OK);
         }
@@ -79,21 +80,21 @@ public class UserController {
      * @param value      The value of the field to search for users (optional).
      * @param otherParam Other parameter (optional) . Usage example: "updateTokens" - will update user tokens
      * @return ResponseEntity containing the users found based on the specified field and value.
-     *         If the field is not specified, returns a list of all users in the system.
-     *         If the field is specified and a user is found, returns the user details as a UserDTO object.
-     *         If the field is specified but no user is found, returns HTTP status code 400 (Bad Request).
-     *         If the user is found but the user id is null, returns HTTP status code 404 (Not Found).
+     * If the field is not specified, returns a list of all users in the system.
+     * If the field is specified and a user is found, returns the user details as a UserDTO object.
+     * If the field is specified but no user is found, returns HTTP status code 400 (Bad Request).
+     * If the user is found but the user id is null, returns HTTP status code 404 (Not Found).
      */
     @GetMapping
     public ResponseEntity getAllUsersByField(@RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-                                             @RequestParam(value="field", required = false) String field,
-                                             @RequestParam(value="value", required = false) String value,
-                                             @RequestParam(value = "otherParam", required = false) String otherParam)  {
+                                             @RequestParam(value = "field", required = false) String field,
+                                             @RequestParam(value = "value", required = false) String value,
+                                             @RequestParam(value = "otherParam", required = false) String otherParam) {
         log.info("Called method UserController.getAllUsersByField");
         if (field == null) {
             logInfo("Get all users", token);
             List<User> allUsers = userService.getAllUsers();
-            if(allUsers == null) {
+            if (allUsers == null) {
                 return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
             }
             List<UserDTO> userDTOS = UserMapper.listUserToListUserDTO(allUsers);
@@ -105,9 +106,9 @@ public class UserController {
                     HttpStatus.BAD_REQUEST);
         }
 
-        logInfo("Get user by " + field + ": " + value , token);
+        logInfo("Get user by " + field + ": " + value, token);
         User user = userService.getUserByField(field, value);
-        if(user == null) {
+        if (user == null) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         } else if (user.getId() == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -115,8 +116,8 @@ public class UserController {
 
         if (otherParam != null && otherParam.equals("updateTokens")) {
             log.info("Request otherParam: {}", otherParam);
-            Boolean isUpdated = userService.updateUserTokens(token, user.getId(),  user.getPubKey());
-            if(isUpdated) {
+            Boolean isUpdated = userService.updateUserTokens(token, user.getId(), user.getPubKey());
+            if (isUpdated) {
                 log.info("Tokens updated for user id {}", user.getId());
                 user = userService.getUserByField("id", user.getId()); // get updated user
             } else {
@@ -131,14 +132,14 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity addUser(
-                                @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-                                @RequestBody AddUserDTO addUserDTO) throws Exception {
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+            @RequestBody AddUserDTO addUserDTO) throws Exception {
         logInfo(String.format("Register new user: [username: %s]", addUserDTO.getUsername()), token);
 
         User newUser = userService.createUserFromAddUserDto(addUserDTO);
         // Get blockchain wallet via Core Service
         WalletEncryptedDTO walletDetails = coreService.generateBlockchainWalletKeys(token);
-        if(walletDetails != null) {
+        if (walletDetails != null) {
             // Decrypt keys. Keys are sent as encrypted strings
             newUser.setPrivKey(CryptoUtils.decrypt(walletDetails.getPrivateKeyEncrypted(), encryptionKey));
             newUser.setPubKey(CryptoUtils.decrypt(walletDetails.getPublicKeyEncrypted(), encryptionKey));
@@ -154,7 +155,7 @@ public class UserController {
             // Insert user
             TextResponse insertResponse = userService.insert(newUser);
             // Response when insert request didn't go well
-            if(insertResponse.getCode() != 200) {
+            if (insertResponse.getCode() != 200) {
                 return new ResponseEntity<>(insertResponse, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
@@ -164,7 +165,7 @@ public class UserController {
         }
 
         // Return encrypted wallet keys
-        if(walletDetails != null) {
+        if (walletDetails != null) {
             newUser.setPubKey(walletDetails.getPublicKeyEncrypted());
             newUser.setPrivKey(walletDetails.getPrivateKeyEncrypted());
             newUser.setTokens(walletDetails.getBalance());
@@ -175,8 +176,8 @@ public class UserController {
 
     @GetMapping("/getkeys/{id}")
     public ResponseEntity<WalletEncryptedDTO> getUserWalletKeys(
-                                            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-                                            @PathVariable(value="id") String id) throws Exception {
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+            @PathVariable(value = "id") String id) throws Exception {
         logInfo("Get keys for user id: " + id, token);
         User user = userService.getUser(id);
         // Encrypt use wallet keys
@@ -191,12 +192,12 @@ public class UserController {
 
     @PutMapping("{userId}")
     public ResponseEntity<Boolean> updateUserField(@PathVariable("userId") String userId,
-                                                @RequestParam("field") String fieldName,
-                                                @RequestParam("value") String value) {
-        String[] allowedField = new String[] {"active", "tokens", "rank"};
+                                                   @RequestParam("field") String fieldName,
+                                                   @RequestParam("value") String value) {
+        String[] allowedField = new String[]{"active", "tokens", "rank"};
 
-        if(!Arrays.asList(allowedField).contains(fieldName)) {
-            log.warn("Field {} not present in allowed list", fieldName);
+        if (!Arrays.asList(allowedField).contains(fieldName)) {
+            log.warn("Field {} not present in allowed fields list", fieldName);
             return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
         }
 
@@ -208,10 +209,35 @@ public class UserController {
                 userService.updateField(fieldName, String.valueOf(userNewRank), userId);
                 break;
 
-            default: response = userService.updateField(fieldName, value, userId);
+            default:
+                response = userService.updateField(fieldName, value, userId);
         }
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * Sets status ACTIVE to FALSE
+     * Use HARD DELETE to delete user form DB
+     * Removing from Keycloak isn't served by this API
+     *
+     * @param userId the ID of the user to be deleted
+     * @return a ResponseEntity object indicating the success or failure of the operation
+     */
+    //@PreAuthorize("hasRole('ADMIN')")
+    @Secured("ROLE_ADMIN")
+    @DeleteMapping("{userId}")
+    public ResponseEntity<UserFieldUpdateResponse> deleteUser(@PathVariable("userId") String userId) {
+        Boolean response = false;
+        try {
+            String fieldName = "active";
+            Object value = false;
+            User foundUser = userService.getUserByField("id", userId);
+            Boolean result = userService.updateField("active", false, userId);
+            return new ResponseEntity<>(new UserFieldUpdateResponse(foundUser.getId(), fieldName, value,  result), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
