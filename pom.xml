@@ -108,6 +108,12 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-spring-boot-starter</artifactId>
+            <version>20.0.1</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.projectlombok</groupId>

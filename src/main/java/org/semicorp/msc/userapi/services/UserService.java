@@ -148,7 +148,7 @@ public class UserService {
     }
 
 
-    public Boolean updateField(String fieldName, String value, String userId) {
+    public Boolean updateField(String fieldName, Object value, String userId) {
         log.info("Request to update field name: {} with value: {} for user id: {}", fieldName, value, userId);
         try (Handle handle = jdbi.open()) {
             String sql = "UPDATE users.user SET " + fieldName + " = '" + value + "' WHERE id ='" + userId + "';";
