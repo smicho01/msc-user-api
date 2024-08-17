@@ -1,4 +1,4 @@
-FROM liquibase/liquibase:4.15.0
+FROM liquibase/liquibase
 WORKDIR /liquibase
 COPY db/changelog changelog
 COPY db/sql sql
