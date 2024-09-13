@@ -10,6 +10,7 @@ import org.semicorp.msc.userapi.domain.user.dto.MessageUserDTO;
 import org.semicorp.msc.userapi.services.MessageService;
 import org.semicorp.msc.userapi.services.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class MessageController {
     private final MessageService messageService;
     private final UserService userService;
 
-    @GetMapping("{userId}")
+    @GetMapping(value = "{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, MessageGrouper>> getAllUserMessages(@PathVariable(value = "userId") String userId) {
         log.info("Get all messages for user id: {}", userId);
         try {
@@ -36,7 +37,7 @@ public class MessageController {
         }
     }
 
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Message> saveMessage(@RequestBody Message message) {
         log.info("Saving message between {} and {}", message.getFromId(), message.getToId());
         message.setId(UUID.randomUUID().toString());
@@ -51,7 +52,7 @@ public class MessageController {
         }
     }
 
-    @DeleteMapping("/{messageId}")
+    @DeleteMapping(value = "/{messageId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> deleteMessage(@PathVariable String messageId) {
         log.info("Deleting message between id {}", messageId);
         try {
@@ -65,7 +66,7 @@ public class MessageController {
         }
     }
 
-    @PutMapping("/{messageId}")
+    @PutMapping(value = "/{messageId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Message> updateMessage(@PathVariable String messageId, @RequestBody Message messageDetails) {
         log.info("Updating message between {} and {}", messageDetails.getFromId(), messageDetails.getToId());
         try {
@@ -100,7 +101,7 @@ public class MessageController {
         }
     }
 
-    @PutMapping("/updatereadall/{fromId}/{toId}")
+    @PutMapping(value = "/updatereadall/{fromId}/{toId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> updateMessageRead(@PathVariable(name = "fromId") String fromId,
                                                      @PathVariable(name = "toId") String toId) {
         log.info("Updating all messages to read from id {} to id {}", fromId, toId);
