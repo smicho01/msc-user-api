@@ -114,6 +114,11 @@ public class UserController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
 
+        // It allows to perform some action before returning the user
+        // Example can be: update user cyrpto tokens - number of tokens for the user may change, so it will
+        // perform an action - get number of tokens for that user wallet from the blockchain and then return the user.
+        // This logic will be moved to a separate helper/service class in the next iteration
+        // TODO: move below logic to other class and possibly endpoint. Too much is happening here.
         if (otherParam != null && otherParam.equals("updateTokens")) {
             log.info("Request otherParam: {}", otherParam);
             Boolean isUpdated = userService.updateUserTokens(token, user.getId(), user.getPubKey());

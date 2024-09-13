@@ -117,11 +117,13 @@ public class MessageController {
     private Map<String, MessageGrouper> getStringMessageGrouperMap(String userId, List<Message> messagesForUser) {
         Map<String, MessageGrouper> groupedMessages = new HashMap<>();
         Map<String, List<Message>> messagesWithUser = new HashMap<>();
-        Set<String> withUserIdsSet = new HashSet<>(); // Store IDs of user that already has been pulled from the DB to save resources and lower API and DB req.
+        // Store IDs of user that already has been pulled from the DB to save resources and lower API and DB req.
+        Set<String> withUserIdsSet = new HashSet<>();
 
         for (Message msg : messagesForUser) {
             UserPair userPair = new UserPair(msg.getFromId(), msg.getToId());
-            String withUserId = userPair.getUser1().equals(userId) ? userPair.getUser2() : userPair.getUser1(); // select Id of the other user than userId ("conversation with")
+            // select ID of the other user than userId ("conversation with")
+            String withUserId = userPair.getUser1().equals(userId) ? userPair.getUser2() : userPair.getUser1();
             User withUser = null;
             MessageUserDTO messageUserDTO = null;
             if (!withUserIdsSet.contains(withUserId)) {
