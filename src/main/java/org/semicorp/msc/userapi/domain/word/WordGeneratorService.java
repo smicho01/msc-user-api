@@ -36,6 +36,11 @@ public class WordGeneratorService {
         List<String> adjectives = adjectiveReader.lines().collect(Collectors.toList());
         List<String> nouns = nounReader.lines().collect(Collectors.toList());
 
+        // Ensure the lists are not empty
+        if (adjectives.isEmpty() || nouns.isEmpty()) {
+            throw new IllegalStateException("Adjective or noun list is empty");
+        }
+
         Random random = new Random();
         String randomAdjective = capitalizeFirstLetter(adjectives.get(random.nextInt(adjectives.size())));
         String randomNoun = nouns.get(random.nextInt(nouns.size()));
