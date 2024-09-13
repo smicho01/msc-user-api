@@ -58,9 +58,11 @@ public class UserController {
             @RequestParam(required = false) Map<String, String> urlParams
     ) {
         String userCollegeId = null;
-        if (urlParams.containsKey("collegeId") && urlParams.get("collegeId") != null) {
-            userCollegeId = urlParams.get("collegeId");
-            log.info("Request with parameter collegeId: {}", userCollegeId);
+        if(urlParams != null) {
+            if (urlParams.containsKey("collegeId") && urlParams.get("collegeId") != null) {
+                userCollegeId = urlParams.get("collegeId");
+                log.info("Request with parameter collegeId: {}", userCollegeId);
+            }
         }
 
         List<User> users = userService.getUserByVisibleUsernameLIKE(username, userCollegeId);
