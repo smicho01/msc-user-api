@@ -58,11 +58,9 @@ class FriendControllerTest {
 
     @Test
     void sendFriendRequest_ShouldReturnOk() throws Exception {
-        // Given
         FriendRequestBody friendRequestBody = new FriendRequestBody("requestingUser", "requestedUser");
         when(friendsService.sendFriendRequest(anyString(), anyString())).thenReturn(true);
 
-        // When / Then
         mockMvc.perform(post("/api/v1/friends/request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"requestingUserId\": \"requestingUser\", \"requestedUserId\": \"requestedUser\"}"))
@@ -74,11 +72,10 @@ class FriendControllerTest {
 
     @Test
     void sendFriendRequest_ShouldReturnBadRequest_OnError() throws Exception {
-        // Given
         FriendRequestBody friendRequestBody = new FriendRequestBody("requestingUser", "requestedUser");
         when(friendsService.sendFriendRequest(anyString(), anyString())).thenThrow(new RuntimeException("Error"));
 
-        // When / Then
+
         mockMvc.perform(post("/api/v1/friends/request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"requestingUserId\": \"requestingUser\", \"requestedUserId\": \"requestedUser\"}"))
@@ -89,10 +86,8 @@ class FriendControllerTest {
 
     @Test
     void deleteFriendRequest_ShouldReturnOk() throws Exception {
-        // Given
         when(friendsService.deleteFriendRequest(anyString(), anyString())).thenReturn(true);
 
-        // When / Then
         mockMvc.perform(delete("/api/v1/friends/request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"requestingUserId\": \"requestingUser\", \"requestedUserId\": \"requestedUser\"}"))
@@ -104,27 +99,22 @@ class FriendControllerTest {
 
     @Test
     void getFriendRequestsForUserId_ShouldReturnOk() throws Exception {
-        // Given
         List<FriendRequestEntity> requests = Collections.emptyList(); // Expecting an empty list
         when(friendsService.getFriendRequestsForUserId(anyString(), eq("requested"))).thenReturn(requests);
 
-        // When / Then
         mockMvc.perform(get("/api/v1/friends/requests/received/{userId}", "test-user")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray()) // Verifying it's an array
                 .andExpect(jsonPath("$.length()").value(0)); // Verifying the array is empty
 
-        // Verify that the service was called once
         verify(friendsService, times(1)).getFriendRequestsForUserId("test-user", "requested");
     }
 
     @Test
     void acceptFriendRequest_ShouldReturnOk() throws Exception {
-        // Given
         when(friendsService.acceptFriendRequest(anyString(), anyString())).thenReturn(true);
 
-        // When / Then
         mockMvc.perform(put("/api/v1/friends/request/accept")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"requestingUserId\": \"requestingUser\", \"requestedUserId\": \"requestedUser\"}"))
